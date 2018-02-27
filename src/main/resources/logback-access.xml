@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property name="log-dir" value="app-log" />
+    
+    <property name="ACCESS_LOG_PATTERN" value="| %a | %A:%localPort | %r | %s | %b | %i{User-Agent}"/>
+    
+    <!--Console Appender-->
+    <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener" />
+    <appender name="simpleConsole" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.access.PatternLayoutEncoder">
+            <pattern>%t{"yyyy-MM-dd HH:mm:ss,SSS 'UTC'", UTC} ${ACCESS_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="SIFTACCESSLOG" class="ch.qos.logback.access.sift.SiftingAppender">
+        <Discriminator class="ch.qos.logback.access.sift.AccessEventDiscriminator">
+            <key>mvcInstanceId</key>
+            <defaultValue>default</defaultValue>
+            <FieldName>LOCAL_PORT</FieldName>
+        </Discriminator>
+        <sift>
+            <appender name="FILE-${mvcInstanceId}" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                <file>./${log-dir}/${mvcInstanceId}/access.log</file>
+                <append>false</append>
+                <encoder class="ch.qos.logback.access.PatternLayoutEncoder">
+                    <charset>utf-8</charset>
+                    <pattern>%t{"yyyy-MM-dd HH:mm:ss,SSS 'UTC'", UTC} ${ACCESS_LOG_PATTERN}</pattern>
+                </encoder>
+                
+                <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+                    <FileNamePattern>./${log-dir}/${mvcInstanceId}/access.%i.log.zip</FileNamePattern>
+                    <MinIndex>1</MinIndex>
+                    <MaxIndex>10</MaxIndex>
+                </rollingPolicy>
+ 
+                <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+                    <MaxFileSize>10MB</MaxFileSize>
+                </triggeringPolicy>
+            </appender>
+        </sift>
+    </appender>
+
+    <appender-ref ref="simpleConsole" additivity="false"/>
+    <appender-ref ref="SIFTACCESSLOG" additivity="false"/>
+
+</configuration>

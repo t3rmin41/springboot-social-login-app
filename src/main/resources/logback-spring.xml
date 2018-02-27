@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <property name="LocalDevLogLevel" value="INFO" />
+    <property name="TestLogLevel" value="INFO" />
+    <property name="ProdLogLevel" value="WARN" />
+    <property name="log-dir" value="app-log" />
+    
+    <property name="COMMON_LOG_PATTERN" value="%-30([%thread]) %-5level - %logger{32} - %msg%n"/>
+
+    <appender name="simpleConsole" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{"yyyy-MM-dd HH:mm:ss,SSS 'UTC'", UTC} ${COMMON_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="SIFTSYSLOG" class="ch.qos.logback.classic.sift.SiftingAppender">
+        <discriminator>
+            <key>mvcInstanceId</key>
+            <defaultValue>default</defaultValue>
+        </discriminator>
+        <sift>
+            <appender name="FILE-${mvcInstanceId}" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                <file>./${log-dir}/${mvcInstanceId}/sys.log</file>
+                <append>false</append>
+                <layout class="ch.qos.logback.classic.PatternLayout">
+                    <pattern>%d{"yyyy-MM-dd HH:mm:ss,SSS 'UTC'", UTC} ${COMMON_LOG_PATTERN}</pattern>
+                </layout>
+                
+                <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+                    <FileNamePattern>./${log-dir}/${mvcInstanceId}/sys.%i.log.zip</FileNamePattern>
+                    <MinIndex>1</MinIndex>
+                    <MaxIndex>10</MaxIndex>
+                </rollingPolicy>
+ 
+                <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+                    <MaxFileSize>10MB</MaxFileSize>
+                </triggeringPolicy>
+            </appender>
+        </sift>
+    </appender>
+
+    <!--DEVELOPMENT logger-->
+    <springProfile name="dev">
+        <root level="${LocalDevLogLevel}" additivity="false">
+            <appender-ref ref="SIFTSYSLOG" />
+            <appender-ref ref="simpleConsole" />
+        </root>
+    </springProfile>
+
+    <!--TEST logger-->
+    <springProfile name="test">
+        <root level="${TestLogLevel}" additivity="false">
+            <appender-ref ref="SIFTSYSLOG" />
+            <appender-ref ref="simpleConsole" />
+        </root>
+    </springProfile>
+
+    <!--PRODUCTION logger-->
+    <springProfile name="prod">
+        <root level="${ProdLogLevel}" additivity="false">
+            <appender-ref ref="SIFTSYSLOG" />
+            <appender-ref ref="simpleConsole" />
+        </root>
+    </springProfile>
+
+</configuration>

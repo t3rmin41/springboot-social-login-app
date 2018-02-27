@@ -1,0 +1,29 @@
+<div class="row" data-ng-controller="UserController">
+  <div class="form-group">
+    <input type="text" class="form-control" id="usersearch" placeholder="Search users" data-ng-model="usersearch" />
+  </div>
+  <table class="table table-striped table-hover">
+    <tbody>
+      <tr>
+        <th>First name</th>
+        <th>Last name</th>
+        <th>Email</th>
+        <th>Roles</th>
+        <th>Actions</th>
+      </tr>
+      <tr ng-repeat="user in users | filter:usersearch">
+        <td>{{user.firstName}}</td>
+        <td>{{user.lastName}}</td>
+        <td>{{user.email}}</td>
+        <td>{{user.viewRoles.join(', ')}}</td>
+        <td>
+            <button class="btn btn-small" ng-click="editUser(user)">Edit</button>
+            <button class="btn btn-small" ng-click="deleteUser(user)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="form-group">
+    <button ng-click="addUser()" class="btn btn-primary">Add User</button>
+  </div>
+</div>

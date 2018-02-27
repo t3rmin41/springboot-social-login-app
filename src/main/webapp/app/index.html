@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html ng-app="app">
+<head>
+<title>Table booking app</title>
+<link href="resources/css/angular-csp.css" rel="stylesheet">
+<link href="resources/css/bootstrap.min.css" rel="stylesheet">
+<link href="resources/css/ui-bootstrap-csp.css" rel="stylesheet">
+<style type="text/css">
+  [ng\:cloak], [ng-cloak], .ng-cloak {
+    display: none !important;
+  }
+</style>
+</head>
+<body>
+  <div ng-view class="container-fluid ng-scope"></div>
+  <script src="resources/js/jquery-3.1.0.min.js" type="text/javascript"></script>
+  <script src="resources/js/angular.min.js" type="text/javascript"></script>
+  <script src="resources/js/angular-route.min.js" type="text/javascript"></script>
+  <script src="resources/js/angular-cookies.min.js" type="text/javascript"></script>
+  <script src="resources/js/bootstrap.min.js" type="text/javascript"></script>
+  <script src="resources/js/ui-bootstrap.min.js" type="text/javascript"></script>
+  <script src="resources/js/ui-bootstrap-tpls.min.js" type="text/javascript"></script>
+  <!--  -->
+  <script src="app/app.js"></script>
+  <!-- services -->
+  <script src="app/services/user.service.js"></script>
+  <script src="app/services/login.service.js"></script>
+  <!-- controllers -->
+  <script src="app/controllers/error.controller.js"></script>
+  <script src="app/controllers/user.controller.js"></script>
+  <script src="app/controllers/tabs.controller.js"></script>
+  <script src="app/controllers/home.controller.js"></script>
+  <script src="app/controllers/login.controller.js"></script>
+</body>
+</html>

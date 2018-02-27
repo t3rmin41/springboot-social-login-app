@@ -1,0 +1,30 @@
+spring:
+    main:
+        show_banner: off
+    application:
+        name: com.simple.fb.app
+    profiles:
+        active: test
+    session:
+        store-type: none
+
+---
+
+spring.profiles: dev
+
+server:
+    port: 8802
+
+---
+
+spring.profiles: test
+
+server:
+    port: 8801
+
+---
+
+spring.profiles: prod
+
+server:
+    port: 8800

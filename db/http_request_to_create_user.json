@@ -1,0 +1,5 @@
+POST http://socket/users/create
+Accept:application/json
+Content-Type:application/json
+Authorization:Bearer xxxyyyzzz
+{"roles":[{"code":"ADMIN","title":"Admin"}],"firstName":"Admin","lastName":"Admin","email":"admin","password":"password"}
