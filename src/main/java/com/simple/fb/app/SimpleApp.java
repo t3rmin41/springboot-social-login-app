@@ -14,7 +14,7 @@ import com.simple.fb.security.SecurityConfig;
 @SpringBootApplication
 @Import({ApplicationConfig.class, JpaConfig.class, MvcConfig.class, SecurityConfig.class})
 public class SimpleApp { // extends SpringBootServletInitializer {
-  
+
   private static Logger log = LoggerFactory.getLogger(SimpleApp.class);
 
   //for traditional .war deployment need to extend SpringBootServletInitializer

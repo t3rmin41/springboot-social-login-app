@@ -3,6 +3,10 @@ spring:
         show_banner: off
     application:
         name: com.simple.fb.app
+    social:
+      facebook:
+        app-id: 625813347760256
+        app-secret: a53ae62be648b8a78e6892958440a3f8
     profiles:
         active: test
     session:
