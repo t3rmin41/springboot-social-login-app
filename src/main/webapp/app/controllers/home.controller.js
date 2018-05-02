@@ -11,22 +11,30 @@
 
     var ctrl = this;
 
-    $scope.authenticated = ('true' == $cookies.get('authenticated'));
+    $scope.route = $route;
+
+    $scope.cartAcknowledged = true;
     
-    //$rootScope.httpErrorMessage = "Some error";
+    $scope.authenticated = ('true' == $cookies.get('authenticated'));
+
+    if ($scope.authenticated) {
+      $rootScope.user = $cookies.getObject('user');
+    }
+
+    if ($scope.authenticated) {
+      $rootScope.hasManager = $scope.user.roles.filter(function(role){ return role.code == "MANAGER"}).length > 0;
+      $rootScope.hasAdmin = $scope.user.roles.filter(function(role){ return role.code == "ADMIN"}).length > 0;
+    }
 
     ctrl.$onInit = function() {
       if (undefined != $cookies.get('token') && null != $cookies.get('token')) {
-        console.log("Home controller initialized with authorization token : " + $cookies.get('token'));
       }
     };
 
     if (!$scope.authenticated) {
       $location.path("/login");
     }
-    
-    $scope.user = $cookies.getObject('user');
-    
+
     $scope.logout = function() {
       LoginService.logout(logoutCallback);
     };

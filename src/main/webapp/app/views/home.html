@@ -1,26 +1,40 @@
 <div ng-show="authenticated" class="container">
-    <div class="row">
-        <div class="col-sm-9">
-            <h3>Table booking app</h3>
+    <div data-ng-controller="HomeController as $ctrl">
+      <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <h3>Springboot Facebook app</h3>
         </div>
-        <div class="col-sm-9">
+      </div>
+      <div class="row">
+        <div class="col-md-12">
              <div class="alert alert-danger" ng-show="$root.httpErrorMessage"> {{ $root.httpErrorMessage }} </div>
         </div>
-        <div class="col-sm-9">
-        <ul class="nav navbar-nav">
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <ul class="nav navbar-nav">
             <li class="dropdown">
-                <a href="#/" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> {{ user.firstName }} {{ user.lastName }} <span class="caret"></span></a>
+                <a href="#/" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> {{ $root.user.firstName }} {{ $root.user.lastName }}
+                  <span class="caret"></span>
+                  <i class="glyphicon glyphicon-user pull-left" style="padding-right: 0.5em"></i>
+                </a>
                 <ul class="dropdown-menu">
                     <li><a ng-click="logout()">Logout</a></li>
                 </ul>
             </li>
-        </ul>
+          </ul>
         </div>
+        <div class="col-md-6">
+        </div>
+      </div>
     </div>
     <div ng-controller="TabsController" class="row">
+      <div class="col-md-11">
         <nav>
-        <ul class="nav nav-tabs">
-            <li ng-repeat="tab in tabs"><a href="#/" ng-click="setCurrentTab(tab.id)">{{ tab.title }}</a></li>
+        <ul class="nav nav-tabs" style="border-bottom: none">
+            <li ng-repeat="tab in tabs" ng-class='{active : tab.selected}'>
+              <a href="#/" ng-click="setCurrentTab(tab.id)">{{ tab.title }} </a>
+            </li>
         </ul>
         </nav>
         <div id="{{currentTab.id}}" class="tab-content">
@@ -28,5 +42,6 @@
                 <div ng-include src="templateUrl(currentTab.id)"></div>
             </div>
         </div>
+      </div>
     </div>
 </div>
