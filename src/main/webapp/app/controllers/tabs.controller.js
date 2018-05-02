@@ -17,7 +17,7 @@
       $scope.tabs = [];
 
       var adminTabs = [
-                        { id: '0', title: 'Users', path: 'app/views/user.html', ctrl : 'UserController', selected: false, newOrdersAdded: false, reloadEvent: 'UserReload' }
+                        { id: '0', title: 'Users', path: 'app/views/user.html', ctrl : 'UserController', selected: false, reloadEvent: 'UserReload' }
                       ];
 
       if (hasAdmin || hasManager) {
