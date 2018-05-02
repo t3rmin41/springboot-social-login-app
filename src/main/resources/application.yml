@@ -8,7 +8,7 @@ spring:
         app-id: 625813347760256
         app-secret: a53ae62be648b8a78e6892958440a3f8
     profiles:
-        active: dev
+        active: test
     session:
         store-type: none
 
