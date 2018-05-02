@@ -191,13 +191,13 @@ public class UserMapperImpl implements UserMapper, BeanValidator {
             .setRoles(convertUserRolesToRoleBeans(jpa.getRoles())).setEnabled(jpa.getEnabled());
   }
 
-  private Set<String> convertExistingUserRolesToStrings(Set<RoleDao> roles) {
-    Set<String> roleNames = new HashSet<String>();
-    for (RoleDao role : roles) {
-      roleNames.add(role.getRole());
-    }
-    return roleNames;
-  }
+//  private Set<String> convertExistingUserRolesToStrings(Set<RoleDao> roles) {
+//    Set<String> roleNames = new HashSet<String>();
+//    for (RoleDao role : roles) {
+//      roleNames.add(role.getRole());
+//    }
+//    return roleNames;
+//  }
 
   private UserDao setSimpleFieldsFromBean(UserDao jpa, UserBean bean) {
     jpa.setEmail(bean.getEmail());
