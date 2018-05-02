@@ -35,7 +35,7 @@
 
     service.saveUser = function(user, success, error) {
       $http({
-        url: '/users/create',
+        url: '/users/save',
         method: 'POST',
         data: user,
         headers : {
