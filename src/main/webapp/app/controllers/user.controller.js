@@ -14,7 +14,7 @@
     $scope.users = [];
 
     ctrl.$onInit = function() {
-      console.log('UserController initialized');
+      //console.log('UserController initialized');
       ctrl.getAllUsers();
     };
 
