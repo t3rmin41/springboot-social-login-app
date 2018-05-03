@@ -14,10 +14,12 @@
       var hasAdmin = $cookies.getObject('user').roles.filter(function(role){ return role.code == "ADMIN"}).length > 0;
       var hasManager = $cookies.getObject('user').roles.filter(function(role){ return role.code == "MANAGER"}).length > 0;
 
-      $scope.tabs = [];
+      $scope.tabs = [
+                        { id: '0', title: 'Products', path: 'app/views/product.html', ctrl : 'ProductController', selected: false, reloadEvent: 'ProductReload' }
+                    ];
 
       var adminTabs = [
-                        { id: '0', title: 'Users', path: 'app/views/user.html', ctrl : 'UserController', selected: false, reloadEvent: 'UserReload' }
+                        { id: '1', title: 'Users', path: 'app/views/user.html', ctrl : 'UserController', selected: false, reloadEvent: 'UserReload' }
                       ];
 
       if (hasAdmin || hasManager) {
