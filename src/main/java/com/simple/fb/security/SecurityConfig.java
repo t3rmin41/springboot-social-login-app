@@ -1,5 +1,8 @@
 package com.simple.fb.security;
 
+import java.util.ArrayList;
+import java.util.List;
+import javax.servlet.Filter;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +16,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.social.connect.ConnectionFactoryLocator;
+import org.springframework.social.connect.UsersConnectionRepository;
+import org.springframework.social.connect.web.ProviderSignInController;
+import org.springframework.web.filter.CompositeFilter;
+import org.springframework.social.connect.mem.InMemoryUsersConnectionRepository;
 
 @Configuration
 @EnableWebSecurity
@@ -49,10 +57,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
       http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         .and()
           .authorizeRequests()
+          .antMatchers("/login*","/signin/**","/signup/**").permitAll()
           .anyRequest().authenticated()
         .and()
-          .addFilterBefore(new JWTLoginFilter("/users/login", authenticationManager()), UsernamePasswordAuthenticationFilter.class)
-          .addFilterBefore(new JWTAuthFilter(), UsernamePasswordAuthenticationFilter.class);
+          .addFilterBefore(loginFilter(), UsernamePasswordAuthenticationFilter.class)
+          .addFilterBefore(loginFilter(), UsernamePasswordAuthenticationFilter.class);
   }
 
   @Override
@@ -61,6 +70,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
       .usersByUsernameQuery("SELECT email AS username, password, enabled FROM users WHERE email = ?")
       .authoritiesByUsernameQuery("SELECT user_id, CONCAT('ROLE_',role) AS authority FROM roles WHERE user_id = (SELECT id FROM users WHERE email = ?)")
       .passwordEncoder(passwordEncoder());
+  }
+  
+  private Filter loginFilter() throws Exception {
+    
+    CompositeFilter filter = new CompositeFilter();
+    List<Filter> filters = new ArrayList<>();
+    
+    JWTLoginFilter jwtLoginFilter = new JWTLoginFilter("/users/login", authenticationManager());
+    filters.add(jwtLoginFilter);
+    JWTAuthFilter jwtAuthFilter = new JWTAuthFilter();
+    filters.add(jwtAuthFilter);
+    
+    filter.setFilters(filters);
+    return filter;
   }
   
 }

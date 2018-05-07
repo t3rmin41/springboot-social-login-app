@@ -12,6 +12,7 @@
     var service = {};
 
     service.login = login;
+    service.loginFacebook = loginFacebook;
     service.logout = logout;
     service.loginSuccessful = loginSuccessful;
 
@@ -21,7 +22,18 @@
         method: 'POST',
         data: credentials,
         headers : {
-          "Content-Type" : "application/x-www-form-urlencoded;charset=UTF-8"
+          "Content-Type" : "application/json;charset=UTF-8"
+        }
+      }).success(success).error(error);
+    }
+    
+    function loginFacebook(credentials, success, error) {
+      $http({
+        url: '/signin/facebook',
+        method: 'POST',
+        data: credentials,
+        headers : {
+          "Content-Type" : "application/json;charset=UTF-8"
         }
       }).success(success).error(error);
     }

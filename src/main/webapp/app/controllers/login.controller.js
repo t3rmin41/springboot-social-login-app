@@ -13,6 +13,10 @@
         LoginService.login($scope.credentials, loginSuccessCallback, loginErrorCallback);
       };
       
+      $scope.loginFacebook = function() {
+        LoginService.loginFacebook($scope.facebookCredentials, loginSuccessCallback, loginErrorCallback);
+      };
+      
       var loginSuccessCallback = function(data, status, headers) {
         $cookies.put('token', headers('Authorization'));
         $cookies.put('authenticated', true);

@@ -129,6 +129,9 @@ dependencies {
     compile("javax.servlet:jstl")
     compile("org.apache.tomcat.embed:tomcat-embed-jasper")
 
+    //Facebook
+    compile("org.springframework.social:spring-social-facebook")
+
     // testing
     testCompile("junit:junit")
     testCompile('org.springframework.boot:spring-boot-starter-test')
