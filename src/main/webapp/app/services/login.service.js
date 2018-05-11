@@ -27,14 +27,18 @@
       }).success(success).error(error);
     }
     
-    function loginFacebook(credentials, success, error) {
+    function loginFacebook(success, error) {
       $http({
-        url: '/signin/facebook',
+        url: '/facebook/login',
         method: 'POST',
-        data: credentials,
-        headers : {
-          "Content-Type" : "application/json;charset=UTF-8"
-        }
+//        data: credentials,
+//        headers : {
+//          "Content-Type" : "application/x-www-form-urlencoded",
+//          "Access-Control-Allow-Origin" : "*",
+//          "Access-Control-Allow-Methods" : "OPTIONS, HEAD, GET, POST, PUT, DELETE",
+//          "Access-Control-Allow-Headers" : "X-Requested-With, X-Auth-Token, Content-Type, Content-Length, Authorization"
+//          
+//        }
       }).success(success).error(error);
     }
     

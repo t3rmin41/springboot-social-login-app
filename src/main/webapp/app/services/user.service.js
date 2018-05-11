@@ -21,6 +21,17 @@
         }
       }).success(success).error(error);
     };
+    
+    service.getUserInfo = function(success, error) {
+      $http({
+        url: '/users/info',
+        method: 'GET',
+        headers : {
+          "Content-Type" : "application/json;charset=UTF-8",
+          "Accept" : "application/json;charset=UTF-8"
+        }
+      }).success(success).error(error);
+    };
 
     service.getUserById = function(id, success, error) {
       $http({

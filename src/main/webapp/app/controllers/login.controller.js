@@ -14,7 +14,7 @@
       };
       
       $scope.loginFacebook = function() {
-        LoginService.loginFacebook($scope.facebookCredentials, loginSuccessCallback, loginErrorCallback);
+        LoginService.loginFacebook(loginSuccessCallback, loginErrorCallback);
       };
       
       var loginSuccessCallback = function(data, status, headers) {
@@ -30,6 +30,11 @@
           $cookies.putObject('user', data);
           $location.path("/");
         }, function(){});
+        UserService.getUserInfo(function(data, status, headers){
+          console.log("UserInfo:"+data);
+        }, function(data, status, headers){
+          console.log("Error:"+data);
+        });
       };
       var loginErrorCallback = function(data, status, headers) {
         var error = {};
