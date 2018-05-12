@@ -71,13 +71,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
       http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         .and()
           .authorizeRequests()
-          .antMatchers("/login*","/signin/**","/signup/**", "/facebook/login**").permitAll()
+          .antMatchers("/login*","/signin/**","/signup/**").permitAll()
           .anyRequest().authenticated()
         //.and()
         //  .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
         .and()
-          .addFilterBefore(loginFilter(), UsernamePasswordAuthenticationFilter.class)
-          .addFilterBefore(loginFilter(), UsernamePasswordAuthenticationFilter.class);
+          .addFilterBefore(requestFilters(), UsernamePasswordAuthenticationFilter.class);
   }
 
 
@@ -89,7 +88,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
       .passwordEncoder(passwordEncoder());
   }
   
-  private Filter loginFilter() throws Exception {
+  private Filter requestFilters() throws Exception {
     
     CompositeFilter filter = new CompositeFilter();
     List<Filter> filters = new ArrayList<>();
@@ -98,6 +97,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     filters.add(jwtLoginFilter);
     JWTAuthFilter jwtAuthFilter = new JWTAuthFilter();
     filters.add(jwtAuthFilter);
+    
+    FacebookLoginFilter facebookFilter = new FacebookLoginFilter("/facebook/login", authenticationManager());
+    filters.add(facebookFilter);
     
     filter.setFilters(filters);
     return filter;
