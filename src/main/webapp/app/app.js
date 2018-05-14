@@ -8,6 +8,10 @@
             templateUrl: 'app/views/home.html',
             controller: 'HomeController'
         })
+//        .when('/privacypolicy', {
+//            templateUrl: 'app/views/privacypolicy.html',
+//            controller: 'PrivacypolicyController'
+//        })
         .when('/login', {
             templateUrl: 'app/views/login.html',
             controller: 'LoginController'

@@ -4,7 +4,10 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -33,6 +36,9 @@ public class UserDao {
   private Set<RoleDao> roles = new HashSet<RoleDao>();
   @Column(name = "ENABLED")
   private boolean enabled;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "TYPE")
+  private UserType type;
 
   public Long getId() {
       return id;
@@ -75,6 +81,12 @@ public class UserDao {
   }
   public void setEnabled(boolean enabled) {
       this.enabled = enabled;
+  }
+  public UserType getType() {
+    return type;
+  }
+  public void setType(UserType type) {
+    this.type = type;
   }
   
 }
