@@ -3,7 +3,6 @@ spring:
         show_banner: off
     application:
         name: com.simple.fb.app
-
     profiles:
         active: prod
     session:
