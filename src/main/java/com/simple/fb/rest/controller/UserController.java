@@ -44,6 +44,11 @@ public class UserController {
     return bean;
   }
 
+  @RequestMapping(value = "/info", method = RequestMethod.GET)
+  public @ResponseBody Principal getUserInfo(Principal principal) {
+    return principal;
+  }
+  
   @RequestMapping(value = "/roles", method = RequestMethod.GET)
   public @ResponseBody List<RoleBean> getUserRoleMap() {
       List<RoleBean> roleList = new LinkedList<RoleBean>();

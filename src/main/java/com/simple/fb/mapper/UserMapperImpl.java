@@ -17,6 +17,7 @@ import com.simple.fb.errorhandling.ErrorField;
 import com.simple.fb.errorhandling.WrongBeanFormatException;
 import com.simple.fb.jpa.RoleDao;
 import com.simple.fb.jpa.UserDao;
+import com.simple.fb.jpa.UserType;
 import com.simple.fb.repository.UserRepository;
 
 @Service
@@ -59,6 +60,7 @@ public class UserMapperImpl implements UserMapper, BeanValidator {
     validateBean(bean);
     setSimpleFieldsFromBean(jpa, bean);
     jpa.setEnabled(true);
+    jpa.setType(UserType.APP);
     UserDao created = userRepo.saveUser(jpa);
     Set<String> roleNames = new HashSet<String>();
     bean.getRoles().stream().forEach(r -> {
