@@ -8,24 +8,25 @@ spring:
         active: dev
     session:
         store-type: none
-    social:
-        facebook:
-            appId: 384261248599251
-            appSecret: fd7fa1c5f5a267f463263a0ce7ff2025
+#    social:
+#        facebook:
+#            appId: 384261248599251
+#            appSecret: fd7fa1c5f5a267f463263a0ce7ff2025
 #    #CSCFirstApp for account nikitazogascsc@gmail.com
 #       app-id: 625813347760256
 #       app-secret: a53ae62be648b8a78e6892958440a3f8
-#    facebook:
-#        client:
-#            clientId: 233668646673605
-#            clientSecret: 33b17e044ee6a4fa383f46ec6e28ea1d
-#            accessTokenUri: https://graph.facebook.com/oauth/access_token
-#            userAuthorizationUri: https://www.facebook.com/dialog/oauth
-#            tokenName: oauth_token
-#            authenticationScheme: query
-#            clientAuthenticationScheme: form
-#    facebook-resource:
-#        userInfoUri: https://graph.facebook.com/me
+#       client-token: 1c9ed458c0ce7fc0958d27ec817497da
+    facebook:
+        client:
+            clientId: 233668646673605
+            clientSecret: 33b17e044ee6a4fa383f46ec6e28ea1d
+            accessTokenUri: https://graph.facebook.com/oauth/access_token
+            userAuthorizationUri: https://www.facebook.com/dialog/oauth
+            tokenName: oauth_token
+            authenticationScheme: query
+            clientAuthenticationScheme: form
+        resource:
+            userInfoUri: https://graph.facebook.com/me
 
 ---
 

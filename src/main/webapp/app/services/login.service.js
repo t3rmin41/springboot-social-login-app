@@ -28,10 +28,10 @@
     }
     
     function loginFacebook(success, error) {
-      $http({
-        url: '/facebook/login',
-        method: 'POST',
-//        data: credentials,
+//      $http({
+//        url: '/signin/facebook',
+//        method: 'POST',
+//        data: {scope: "public_profile"},
 //        headers : {
 //          "Content-Type" : "application/x-www-form-urlencoded",
 //          "Access-Control-Allow-Origin" : "*",
@@ -39,7 +39,18 @@
 //          "Access-Control-Allow-Headers" : "X-Requested-With, X-Auth-Token, Content-Type, Content-Length, Authorization"
 //          
 //        }
-      }).success(success).error(error);
+//      }).success(success).error(error);
+      $.ajaxSetup({
+        beforeSend : function(xhr, settings) {
+          if (settings.type == 'POST' || settings.type == 'PUT' || settings.type == 'DELETE') {
+            if (!(/^http:.*/.test(settings.url) || /^https:.*/
+                .test(settings.url))) {
+              // Only send the token to relative URLs i.e. locally.
+              xhr.setRequestHeader("X-XSRF-TOKEN", Cookies.get('XSRF-TOKEN'));
+            }
+          }
+        }
+        });
     }
     
     function loginSuccessful(success, error) {

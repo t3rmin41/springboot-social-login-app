@@ -5,9 +5,9 @@
         .module('app')
         .controller('LoginController', LoginController);
 
-    LoginController.$inject = ['$rootScope', '$scope', '$cookies', '$location', 'LoginService', 'UserService'];
+    LoginController.$inject = ['$rootScope', '$scope', '$cookies', '$location', '$window', 'LoginService', 'UserService'];
 
-    function LoginController($rootScope, $scope, $cookies, $location, LoginService, UserService) {
+    function LoginController($rootScope, $scope, $cookies, $location, $window, LoginService, UserService) {
       
       $scope.login = function() {
         LoginService.login($scope.credentials, loginSuccessCallback, loginErrorCallback);
@@ -15,6 +15,26 @@
       
       $scope.loginFacebook = function() {
         LoginService.loginFacebook(loginSuccessCallback, loginErrorCallback);
+      };
+      
+      $scope.processForm = function() {
+        console.log("Form processed");
+        //$location.path("/");
+      };
+      
+      var changeLocation = function(url, forceReload) {
+        $scope = $scope || angular.element(document).scope();
+        if(forceReload || $scope.$$phase) {
+          $window.location = url;
+        }
+        else {
+          //only use this if you want to replace the history stack
+          //$location.path(url).replace();
+
+          //this this if you want to change the URL and add it to the history stack
+          $location.path(url);
+          $scope.$apply();
+        }
       };
       
       var loginSuccessCallback = function(data, status, headers) {
@@ -30,11 +50,12 @@
           $cookies.putObject('user', data);
           $location.path("/");
         }, function(){});
-        UserService.getUserInfo(function(data, status, headers){
-          console.log("UserInfo:"+data);
-        }, function(data, status, headers){
-          console.log("Error:"+data);
-        });
+//        UserService.getUserInfo(function(data, status, headers){
+//          console.log("UserInfo:"+data);
+//        },
+//          function(data, status, headers){
+//          console.log("Error:"+data);
+//        });
       };
       var loginErrorCallback = function(data, status, headers) {
         var error = {};

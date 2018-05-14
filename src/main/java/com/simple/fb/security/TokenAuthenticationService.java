@@ -7,8 +7,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
 import org.springframework.stereotype.Service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -16,7 +21,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
 @Service
-public class TokenAuthenticationService {
+public class TokenAuthenticationService implements ResourceServerTokenServices {
 
   static long EXPIRATIONTIME = 86400_000; // 1 day
   static String SECRET = "ThisIsASecret";
@@ -64,6 +69,19 @@ public class TokenAuthenticationService {
       roles.add(new SimpleGrantedAuthority(rS));
     });
     return roles;
+  }
+
+  @Override
+  public OAuth2Authentication loadAuthentication(String accessToken)
+  throws AuthenticationException, InvalidTokenException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public OAuth2AccessToken readAccessToken(String accessToken) {
+    // TODO Auto-generated method stub
+    return null;
   }
   
 }
