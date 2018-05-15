@@ -26,15 +26,46 @@ spring:
             clientAuthenticationScheme: form
         resource:
             userInfoUri: https://graph.facebook.com/me
+#    Account: nikitazogas@gmail.com
+#    OAuth client name: oauth-web-client
+#    clientId: 931600010012-n9b2jb57i4fm2ohp28niqb11lv9u34cf.apps.googleusercontent.com
+#    clientSecret: lPQdkmsBZqJCDgcGkPT2On7o
+#    google:
+#        oauth2:
+#            client:
+#                clientId: 931600010012-n9b2jb57i4fm2ohp28niqb11lv9u34cf.apps.googleusercontent.com
+#                clientSecret: lPQdkmsBZqJCDgcGkPT2On7o
+#                accessTokenUri: https://www.googleapis.com/oauth2/v3/token
+#                userAuthorizationUri: https://accounts.google.com/o/oauth2/auth
+#                tokenName: oauth_token
+#                authenticationScheme: query
+#                clientAuthenticationScheme: form
+#                scope: profile
+#            resource:
+#                userInfoUri: https://www.googleapis.com/userinfo/v2/me
+#                preferTokenInfo: false
+security:
+    oauth2:
+        client:
+            clientId: 931600010012-n9b2jb57i4fm2ohp28niqb11lv9u34cf.apps.googleusercontent.com
+            clientSecret: lPQdkmsBZqJCDgcGkPT2On7o
+            accessTokenUri: https://www.googleapis.com/oauth2/v3/token
+            userAuthorizationUri: https://accounts.google.com/o/oauth2/auth
+            tokenName: oauth_token
+            authenticationScheme: query
+            clientAuthenticationScheme: form
+            scope: profile
+        resource:
+            userInfoUri: https://www.googleapis.com/userinfo/v2/me
+            preferTokenInfo: false
 
 ---
 
 spring.profiles: dev
 
 server:
-    #port: 8802
-    port: 8080
-    #port: 3000
+    port: 8802
+    #port: 8080
 
 ---
 
