@@ -17,6 +17,10 @@
         LoginService.loginFacebook(loginSuccessCallback, loginErrorCallback);
       };
       
+      $scope.loginGoogle = function() {
+        LoginService.loginGoogle(loginSuccessCallback, loginErrorCallback);
+      };
+      
       $scope.processForm = function() {
         console.log("Form processed");
         //$location.path("/");
