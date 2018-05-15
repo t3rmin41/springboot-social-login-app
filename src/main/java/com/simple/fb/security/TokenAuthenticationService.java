@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.assertj.core.util.Arrays;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -15,6 +17,7 @@ import org.springframework.security.oauth2.common.exceptions.InvalidTokenExcepti
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
 import org.springframework.stereotype.Service;
+import com.simple.fb.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -28,6 +31,9 @@ public class TokenAuthenticationService implements ResourceServerTokenServices {
   static String TOKEN_PREFIX = "Bearer";
   static String HEADER_STRING = "Authorization";
 
+  @Autowired
+  private UserRepository userRepo;
+  
   public void addAuthentication(HttpServletResponse res, String email, Collection<? extends GrantedAuthority> authorities) {
     Claims claims = Jwts.claims().setSubject(email);
     claims.put("roles", authorities.stream().map(s -> s.toString()).collect(Collectors.toList()));
@@ -65,6 +71,28 @@ public class TokenAuthenticationService implements ResourceServerTokenServices {
         .setSigningKey(SECRET)
         .parseClaimsJws(token.replace(TOKEN_PREFIX, ""));
     List<String> rolesAsString = (List<String>) claims.getBody().get("roles");
+    rolesAsString.stream().forEach(rS -> {
+      roles.add(new SimpleGrantedAuthority(rS));
+    });
+    return roles;
+  }
+  
+  @SuppressWarnings("unchecked")
+  public List<GrantedAuthority> getFacebookAuthenticatedUserRoles(HttpServletRequest request) throws UserNotFoundException {
+    List<GrantedAuthority> roles = new LinkedList<GrantedAuthority>();
+    List<String> rolesAsString = new LinkedList<String>();
+    rolesAsString.add("CUSTOMER");
+    rolesAsString.stream().forEach(rS -> {
+      roles.add(new SimpleGrantedAuthority(rS));
+    });
+    return roles;
+  }
+  
+  @SuppressWarnings("unchecked")
+  public List<GrantedAuthority> getGoogleAuthenticatedUserRoles(HttpServletRequest request) throws UserNotFoundException {
+    List<GrantedAuthority> roles = new LinkedList<GrantedAuthority>();
+    List<String> rolesAsString = new LinkedList<String>();
+    rolesAsString.add("CUSTOMER");
     rolesAsString.stream().forEach(rS -> {
       roles.add(new SimpleGrantedAuthority(rS));
     });

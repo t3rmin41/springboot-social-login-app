@@ -44,6 +44,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Autowired
   private DataSource dataSource;
 
+  @Autowired
+  private OAuth2ClientContext oauth2ClientContext;
+  
   @Bean
   public PasswordEncoder passwordEncoder() {
       return new BCryptPasswordEncoder();
@@ -102,9 +105,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     
     FacebookLoginFilter facebookFilter = new FacebookLoginFilter("/facebook/login", authenticationManager());
     filters.add(facebookFilter);
+
+    GoogleLoginFilter googleFilter = new GoogleLoginFilter("/google/login", authenticationManager());
+    filters.add(googleFilter);
     
     filter.setFilters(filters);
     return filter;
   }
+  
+//  private Filter ssoFilter(ClientResources client, String path) {
+//    OAuth2ClientAuthenticationProcessingFilter filter = new OAuth2ClientAuthenticationProcessingFilter(path);
+//    OAuth2RestTemplate template = new OAuth2RestTemplate(client.getClient(), oauth2ClientContext);
+//    filter.setRestTemplate(template);
+//    UserInfoTokenServices tokenServices = new UserInfoTokenServices(client.getResource().getUserInfoUri(), client.getClient().getClientId());
+//    tokenServices.setRestTemplate(template);
+//    filter.setTokenServices(tokenServices);
+//    return filter;
+//  }
   
 }
