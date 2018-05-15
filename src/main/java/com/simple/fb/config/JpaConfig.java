@@ -26,9 +26,9 @@ public class JpaConfig {
     DriverManagerDataSource driverManagerDataSource = new DriverManagerDataSource();
     if ("prod".equals(activeProfile)) {
       driverManagerDataSource.setDriverClassName("org.postgresql.Driver");
-      //driverManagerDataSource.setUrl("jdbc:postgresql://ec2-54-75-244-248.eu-west-1.compute.amazonaws.com:5432/def9rmt7j8882a");
-      //driverManagerDataSource.setUsername("tbjznubkniaknu"); // using account credentials
-      //driverManagerDataSource.setPassword("4b95dfb88aa6f03b3c374e74b64dff988848be8a2e41fd6a9787438fdf14e2c1");
+      driverManagerDataSource.setUrl("jdbc:postgresql://ec2-79-125-12-48.eu-west-1.compute.amazonaws.com:5432/d1rqn52vosj28b");
+      driverManagerDataSource.setUsername("oipeycrmnbyqhv"); // using account credentials
+      driverManagerDataSource.setPassword("b21acd74489bc4fd1b8a31ff10f47d77c03e702c96eeed53faebe45bc337441f");
     } else if ("test".equals(activeProfile)) {
       driverManagerDataSource.setDriverClassName("org.h2.Driver");
       driverManagerDataSource.setUrl("jdbc:h2:./db/test/bin;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=TRUE");
