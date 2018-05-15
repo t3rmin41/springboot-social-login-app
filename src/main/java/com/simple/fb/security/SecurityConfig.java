@@ -37,6 +37,7 @@ import org.springframework.web.filter.CompositeFilter;
 import org.springframework.social.connect.mem.InMemoryUsersConnectionRepository;
 
 @Configuration
+@EnableOAuth2Sso
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
