@@ -34,12 +34,12 @@ sourceSets {
 }
 
 jar {
-    baseName = 'simple-fb-app'
+    baseName = 'simple-social-app'
     version = '1.0.0'
 }
 
 //war {
-//    archiveName = 'simple-fb-app-1.0.0.war'
+//    archiveName = 'simple-social-app-1.0.0.war'
 //}
 
 sourceCompatibility = 1.8
