@@ -16,6 +16,11 @@
             templateUrl: 'app/views/login.html',
             controller: 'LoginController'
         })
+//        .when('/google/login', {
+//            //templateUrl: 'app/views/home.html',
+//            //controller: 'HomeController'
+//            redirectTo : '/'
+//        })
         .otherwise({
           redirectTo : '/login'
         });

@@ -14,8 +14,9 @@ public class UserBean implements Serializable {
   private String lastName;
   private String email;
   private String password;
-  private List<RoleBean> roles;
+  private List<RoleBean> roles = new LinkedList<RoleBean>();
   private boolean enabled;
+  private String type;
 
   public Long getId() {
       return id;
@@ -65,6 +66,13 @@ public class UserBean implements Serializable {
   public UserBean setEnabled(boolean enabled) {
       this.enabled = enabled;
       return this;
+  }
+  public String getType() {
+    return type;
+  }
+  public UserBean setType(String type) {
+    this.type = type;
+    return this;
   }
   public List<String> getRolesAsStrings() {
     List<String> roleStrings = new LinkedList<String>();

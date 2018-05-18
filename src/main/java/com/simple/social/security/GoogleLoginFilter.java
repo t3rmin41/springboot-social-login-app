@@ -4,7 +4,11 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.servlet.FilterChain;
@@ -20,6 +24,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.RsaVerifier;
@@ -32,7 +38,10 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.simple.social.ApplicationContextProvider;
+import com.simple.social.domain.RoleBean;
 import com.simple.social.domain.UserBean;
+import com.simple.social.enums.RoleType;
+import com.simple.social.enums.UserType;
 import com.simple.social.service.UserService;
 
 import com.auth0.jwk.Jwk;
@@ -109,16 +118,27 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
   throws IOException, ServletException {
     TokenAuthenticationService tokenService = ApplicationContextProvider.getApplicationContext().getBean(TokenAuthenticationService.class);
     String email = null;
+    Collection<GrantedAuthority> authorities = new LinkedList<GrantedAuthority>();
     try {
       Field emailField = auth.getPrincipal().getClass().getDeclaredField("username");
       emailField.setAccessible(true);
       email = (String) emailField.get(auth.getPrincipal());
-      UserBean userBean = userService.getUserByEmail(email);
-      userBean.getRoles();
+      UserBean userBean = userService.getUserByEmailAndType(email, UserType.GOOGLE);
+      if (null == userBean) {
+        UserBean newUserBean = new UserBean().setEmail(email).setPassword("123").setEnabled(true);
+        List<RoleBean> roles = new LinkedList<RoleBean>();
+        roles.add(new RoleBean().setCode(RoleType.CUSTOMER.toString()).setTitle(RoleType.CUSTOMER.getTitle()));
+        newUserBean.getRoles().addAll(roles);
+        userService.saveUserFromSocial(newUserBean, UserType.GOOGLE);
+      } else {
+        userBean.getRoles().stream().forEach(r -> {
+          authorities.add(new SimpleGrantedAuthority(r.getCode()));
+        });
+      }
     } catch (NoSuchFieldException | IllegalAccessException e) {
       logger.error("{}", e);
     }
-    tokenService.addAuthentication(res, email, auth.getAuthorities());
+    tokenService.addAuthentication(res, email, authorities);
   }
   
 }

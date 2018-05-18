@@ -2,12 +2,15 @@ package com.simple.social.repository;
 
 import java.util.List;
 import java.util.Set;
+import com.simple.social.enums.UserType;
 import com.simple.social.jpa.RoleDao;
 import com.simple.social.jpa.UserDao;
 
 public interface UserRepository {
 
   UserDao getUserByEmail(String email);
+  
+  UserDao getUserByEmailAndType(String email, UserType type);
   
   UserDao getUserByEmailAndPassword(String username, String password);
   

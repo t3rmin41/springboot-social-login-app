@@ -1,4 +1,4 @@
-package com.simple.social.jpa;
+package com.simple.social.enums;
 
 public enum UserType {
 

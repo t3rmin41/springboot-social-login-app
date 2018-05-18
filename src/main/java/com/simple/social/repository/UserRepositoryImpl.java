@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TransactionRequiredException;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
+import com.simple.social.enums.UserType;
 import com.simple.social.jpa.RoleDao;
 import com.simple.social.jpa.UserDao;
 
@@ -31,12 +33,34 @@ public class UserRepositoryImpl implements UserRepository {
   @Override
   @Transactional
   public UserDao getUserByEmail(String email) {
-    String q = "SELECT u FROM UserDao u LEFT JOIN FETCH u.roles WHERE u.email = :pemail AND u.type = 'APP'";
-    TypedQuery<UserDao> query = em.createQuery(q, UserDao.class);
-    query.setParameter("pemail", email);
-    return query.getSingleResult();
+    UserDao userDao = null;
+    try {
+      String q = "SELECT u FROM UserDao u LEFT JOIN FETCH u.roles WHERE u.email = :pemail AND u.type = 'APP'";
+      TypedQuery<UserDao> query = em.createQuery(q, UserDao.class);
+      query.setParameter("pemail", email);
+      userDao = query.getSingleResult();
+    } catch (NoResultException e) {
+      log.warn("No app user found with email="+email);
+    }
+    return userDao;
   }
 
+  @Override
+  @Transactional
+  public UserDao getUserByEmailAndType(String email, UserType type) {
+    UserDao userDao = null;
+    try {
+      String q = "SELECT u FROM UserDao u LEFT JOIN FETCH u.roles WHERE u.email = :pemail AND u.type = :ptype";
+      TypedQuery<UserDao> query = em.createQuery(q, UserDao.class);
+      query.setParameter("pemail", email);
+      query.setParameter("ptype", type);
+      userDao = query.getSingleResult();
+    } catch (NoResultException e) {
+      log.warn("No app user found with email="+email+" and type="+type);
+    }
+    return userDao;
+  }
+  
   @Override
   @Transactional
   public UserDao getUserByEmailAndPassword(String email, String password) {
@@ -91,7 +115,7 @@ public class UserRepositoryImpl implements UserRepository {
   @Override
   @Transactional
   public List<UserDao> getAllUsers() {
-    String q = "SELECT u FROM UserDao u WHERE u.enabled = true AND u.type = 'APP'";
+    String q = "SELECT u FROM UserDao u WHERE u.enabled = true";
     TypedQuery<UserDao> query = em.createQuery(q, UserDao.class);
     return query.getResultList();
   }

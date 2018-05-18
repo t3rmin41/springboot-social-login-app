@@ -5,6 +5,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.simple.social.domain.UserBean;
+import com.simple.social.enums.UserType;
 import com.simple.social.mapper.UserMapper;
 
 @Service
@@ -24,6 +25,11 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  public UserBean getUserByEmailAndType(String email, UserType type) {
+    return userMapper.getUserBeanByEmailAndType(email, type);
+  }
+  
+  @Override
   public UserBean getUserById(Long id) {
     return userMapper.convertUserToBeanByUserId(id);
   }
@@ -33,6 +39,11 @@ public class UserServiceImpl implements UserService {
     return userMapper.saveUser(bean);
   }
 
+  @Override
+  public UserBean saveUserFromSocial(UserBean bean, UserType type) {
+    return userMapper.saveUserFromSocial(bean, type);
+  }
+  
   @Override
   public List<UserBean> getAllUsers() {
     return userMapper.getAllUsers();
@@ -52,5 +63,5 @@ public class UserServiceImpl implements UserService {
   public Set<String> getRolesByEmail(String email) {
     return userMapper.getRolesByEmail(email);
   }
-  
+
 }

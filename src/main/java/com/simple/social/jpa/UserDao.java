@@ -14,6 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import com.simple.social.enums.UserType;
 
 @Entity
 @Table(name = "USERS")

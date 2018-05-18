@@ -13,11 +13,11 @@ import org.springframework.stereotype.Service;
 import com.simple.social.domain.RoleBean;
 import com.simple.social.domain.UserBean;
 import com.simple.social.enums.RoleType;
+import com.simple.social.enums.UserType;
 import com.simple.social.errorhandling.ErrorField;
 import com.simple.social.errorhandling.WrongBeanFormatException;
 import com.simple.social.jpa.RoleDao;
 import com.simple.social.jpa.UserDao;
-import com.simple.social.jpa.UserType;
 import com.simple.social.repository.UserRepository;
 
 @Service
@@ -34,6 +34,11 @@ public class UserMapperImpl implements UserMapper, BeanValidator {
     return convertJpaToBean(userRepo.getUserByEmail(email));
   }
 
+  @Override
+  public UserBean getUserBeanByEmailAndType(String email, UserType type) {
+    return convertJpaToBean(userRepo.getUserByEmailAndType(email, type));
+  }
+  
   @Override
   public UserBean getUserBeanByEmailAndPassword(String email, String password) {
     UserDao jpa = userRepo.getUserByEmailAndPassword(email, password);
@@ -71,6 +76,23 @@ public class UserMapperImpl implements UserMapper, BeanValidator {
     return convertUserToBeanByUserId(created.getId());
   }
 
+  @Override
+  public UserBean saveUserFromSocial(UserBean bean, UserType type) {
+    UserDao jpa = new UserDao();
+    validateBean(bean);
+    setSimpleFieldsFromBean(jpa, bean);
+    jpa.setEnabled(true);
+    jpa.setType(type);
+    UserDao created = userRepo.saveUser(jpa);
+    Set<String> roleNames = new HashSet<String>();
+    bean.getRoles().stream().forEach(r -> {
+      roleNames.add(r.getCode());
+    });
+    Set<RoleDao> roles = convertUserNewRoleStringToRoles(created, roleNames);
+    userRepo.assignRoles(roles);
+    return convertUserToBeanByUserId(created.getId());
+  }
+  
   @Override
   public List<UserBean> getAllUsers() {
     List<UserBean> beans = new ArrayList<UserBean>();
@@ -191,7 +213,9 @@ public class UserMapperImpl implements UserMapper, BeanValidator {
           .setLastName(jpa.getLastName())
           .setEmail(jpa.getEmail())
           .setId(null != jpa.getId() ? jpa.getId() : null)
-          .setRoles(convertUserRolesToRoleBeans(jpa.getRoles())).setEnabled(jpa.getEnabled());
+          .setRoles(convertUserRolesToRoleBeans(jpa.getRoles()))
+          .setEnabled(jpa.getEnabled())
+          .setType(jpa.getType().getTitle());
     }
     return null;
   }
@@ -229,5 +253,7 @@ public class UserMapperImpl implements UserMapper, BeanValidator {
   private boolean checkIfPasswordChanged(UserBean bean) {
     return null != bean.getPassword();
   }
+
+
   
 }
