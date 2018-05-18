@@ -185,12 +185,15 @@ public class UserMapperImpl implements UserMapper, BeanValidator {
 }
 
   private UserBean convertJpaToBean(UserDao jpa) {
-    return new UserBean()//.setPassword(jpa.getPassword())
-            .setFirstName(jpa.getFirstName())
-            .setLastName(jpa.getLastName())
-            .setEmail(jpa.getEmail())
-            .setId(null != jpa.getId() ? jpa.getId() : null)
-            .setRoles(convertUserRolesToRoleBeans(jpa.getRoles())).setEnabled(jpa.getEnabled());
+    if (null != jpa) {
+      return new UserBean()//.setPassword(jpa.getPassword())
+          .setFirstName(jpa.getFirstName())
+          .setLastName(jpa.getLastName())
+          .setEmail(jpa.getEmail())
+          .setId(null != jpa.getId() ? jpa.getId() : null)
+          .setRoles(convertUserRolesToRoleBeans(jpa.getRoles())).setEnabled(jpa.getEnabled());
+    }
+    return null;
   }
 
 //  private Set<String> convertExistingUserRolesToStrings(Set<RoleDao> roles) {

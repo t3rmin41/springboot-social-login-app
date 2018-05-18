@@ -8,44 +8,32 @@ spring:
     session:
         store-type: none
 #    social:
+#        google:
+#            clientId: 931600010012-n9b2jb57i4fm2ohp28niqb11lv9u34cf.apps.googleusercontent.com
+#            clientSecret: lPQdkmsBZqJCDgcGkPT2On7o
 #        facebook:
 #            appId: 384261248599251
 #            appSecret: fd7fa1c5f5a267f463263a0ce7ff2025
 #    #CSCFirstApp for account nikitazogascsc@gmail.com
-#       app-id: 625813347760256
-#       app-secret: a53ae62be648b8a78e6892958440a3f8
+#       appId: 625813347760256
+#       appSecret: a53ae62be648b8a78e6892958440a3f8
 #       client-token: 1c9ed458c0ce7fc0958d27ec817497da
-    facebook:
-        client:
-            clientId: 233668646673605
-            clientSecret: 33b17e044ee6a4fa383f46ec6e28ea1d
-            accessTokenUri: https://graph.facebook.com/oauth/access_token
-            userAuthorizationUri: https://www.facebook.com/dialog/oauth
-            tokenName: oauth_token
-            authenticationScheme: query
-            clientAuthenticationScheme: form
-        resource:
-            userInfoUri: https://graph.facebook.com/me
+#    facebook:
+#        client:
+#            clientId: 233668646673605
+#            clientSecret: 33b17e044ee6a4fa383f46ec6e28ea1d
+#            accessTokenUri: https://graph.facebook.com/oauth/access_token
+#            userAuthorizationUri: https://www.facebook.com/dialog/oauth
+#            tokenName: oauth_token
+#            authenticationScheme: query
+#            clientAuthenticationScheme: form
+#        resource:
+#            userInfoUri: https://graph.facebook.com/me
 #    Account: nikitazogas@gmail.com
 #    OAuth client name: oauth-web-client
 #    clientId: 931600010012-n9b2jb57i4fm2ohp28niqb11lv9u34cf.apps.googleusercontent.com
 #    clientSecret: lPQdkmsBZqJCDgcGkPT2On7o
-#    google:
-#        oauth2:
-#            client:
-#                clientId: 931600010012-n9b2jb57i4fm2ohp28niqb11lv9u34cf.apps.googleusercontent.com
-#                clientSecret: lPQdkmsBZqJCDgcGkPT2On7o
-#                accessTokenUri: https://www.googleapis.com/oauth2/v3/token
-#                userAuthorizationUri: https://accounts.google.com/o/oauth2/auth
-#                tokenName: oauth_token
-#                authenticationScheme: query
-#                clientAuthenticationScheme: form
-#                scope: profile
-#            resource:
-#                userInfoUri: https://www.googleapis.com/userinfo/v2/me
-#                preferTokenInfo: false
-google:
-    oauth2:
+    google:
         client:
             clientId: 931600010012-n9b2jb57i4fm2ohp28niqb11lv9u34cf.apps.googleusercontent.com
             clientSecret: lPQdkmsBZqJCDgcGkPT2On7o
@@ -58,6 +46,8 @@ google:
         resource:
             userInfoUri: https://www.googleapis.com/userinfo/v2/me
             preferTokenInfo: false
+            issuer: accounts.google.com
+            jwkUrl: https://www.googleapis.com/oauth2/v2/certs
 
 ---
 
@@ -65,7 +55,9 @@ spring.profiles: dev
 
 server:
     port: 8802
-    #port: 8080
+google:
+    resource:
+        redirectUri: http://localhost:8802/google/login
 
 ---
 
@@ -73,6 +65,9 @@ spring.profiles: test
 
 server:
     port: 8801
+google:
+    resource:
+        redirectUri: http://localhost:8801/google/login
 
 ---
 
@@ -80,3 +75,6 @@ spring.profiles: prod
 
 server:
     port: 8800
+google:
+    resource:
+        redirectUri: http://localhost:8800/google/login

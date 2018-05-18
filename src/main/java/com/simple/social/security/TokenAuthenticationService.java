@@ -26,11 +26,14 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Service
 public class TokenAuthenticationService {
 
-  static long EXPIRATIONTIME = 86400_000; // 1 day
-  static String SECRET = "ThisIsASecret";
-  static String TOKEN_PREFIX = "Bearer";
-  static String HEADER_STRING = "Authorization";
+  private static long EXPIRATIONTIME = 86400_000; // 1 day
+  private static String SECRET = "ThisIsASecret";
+  private static String TOKEN_PREFIX = "Bearer";
+  private static String HEADER_STRING = "Authorization";
 
+  @Autowired
+  private UserRepository userRepo;
+  
   public void addAuthentication(HttpServletResponse res, String email, Collection<? extends GrantedAuthority> authorities) {
     Claims claims = Jwts.claims().setSubject(email);
     claims.put("roles", authorities.stream().map(s -> s.toString()).collect(Collectors.toList()));

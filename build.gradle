@@ -140,6 +140,10 @@ dependencies {
     compile("org.springframework.social:spring-social-core:1.1.4.RELEASE")
     compile("org.springframework.social:spring-social-config:1.1.4.RELEASE")
     //compile("org.springframework.social:spring-social-facebook:2.0.2.RELEASE")
+    //compile("org.springframework.social:spring-social-google:1.0.0.RELEASE")
+
+    //RSA verifier
+    compile("com.auth0:jwks-rsa:0.3.0")
 
     //Misc
     //compile("cglib:cglib:3.1")
