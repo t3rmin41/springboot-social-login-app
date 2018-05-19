@@ -82,7 +82,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Bean
   public GoogleLoginFilter googleLoginFilter() {
-    final GoogleLoginFilter googleLoginFilter = new GoogleLoginFilter("/google/login");
+    final GoogleLoginFilter googleLoginFilter = new GoogleLoginFilter("/googlelogin");
     googleLoginFilter.setRestTemplate(restTemplate);
     return googleLoginFilter;
   }
@@ -135,9 +135,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
       http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
       http
         .addFilterAfter(new OAuth2ClientContextFilter(), AbstractPreAuthenticatedProcessingFilter.class)
-        .addFilterAfter(googleLoginFilter(), OAuth2ClientContextFilter.class)
-        .httpBasic().authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/google/login"))
-        .and()
+        .addFilterAfter(googleLoginFilter(), OAuth2ClientContextFilter.class);
+        //.httpBasic().authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/googlelogin"))
+      http
           .authorizeRequests()
           .antMatchers("/login*","/signin/**","/signup/**").permitAll()
           .anyRequest().authenticated()
@@ -152,8 +152,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Override
   protected void configure(AuthenticationManagerBuilder auth) throws Exception {
       auth.jdbcAuthentication().dataSource(dataSource)
-      .usersByUsernameQuery("SELECT email AS username, password, enabled FROM users WHERE email = ?")
-      .authoritiesByUsernameQuery("SELECT user_id, CONCAT('ROLE_',role) AS authority FROM roles WHERE user_id = (SELECT id FROM users WHERE email = ?)")
+      .usersByUsernameQuery("SELECT email AS username, password, enabled FROM users WHERE email = ? AND type = 'APP'")
+      .authoritiesByUsernameQuery("SELECT user_id, CONCAT('ROLE_',role) AS authority FROM roles WHERE user_id = (SELECT id FROM users WHERE email = ? AND type = 'APP')")
       .passwordEncoder(passwordEncoder());
   }
   

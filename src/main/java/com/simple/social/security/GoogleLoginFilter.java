@@ -128,6 +128,7 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
         UserBean newUserBean = new UserBean().setEmail(email).setPassword("123").setEnabled(true);
         List<RoleBean> roles = new LinkedList<RoleBean>();
         roles.add(new RoleBean().setCode(RoleType.CUSTOMER.toString()).setTitle(RoleType.CUSTOMER.getTitle()));
+        authorities.add(new SimpleGrantedAuthority(RoleType.CUSTOMER.toString()));
         newUserBean.getRoles().addAll(roles);
         userService.saveUserFromSocial(newUserBean, UserType.GOOGLE);
       } else {

@@ -37,6 +37,7 @@ public class UserDao {
   private Set<RoleDao> roles = new HashSet<RoleDao>();
   @Column(name = "ENABLED")
   private boolean enabled;
+
   @Enumerated(EnumType.STRING)
   @Column(name = "TYPE")
   private UserType type;

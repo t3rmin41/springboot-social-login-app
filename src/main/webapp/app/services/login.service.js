@@ -30,7 +30,7 @@
     
     function loginFacebook(success, error) {
       $http({
-        url: '/facebook/login',
+        url: '/facebooklogin',
         method: 'POST',
         data: {scope: "public_profile"},
         headers : {
@@ -56,7 +56,7 @@
     
     function loginGoogle(success, error) {
     $http({
-      url: '/google/login',
+      url: '/googlelogin',
       method: 'GET',
 //      data: {scope: "public_profile"},
 //      headers : {

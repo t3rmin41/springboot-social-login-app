@@ -31,9 +31,6 @@ public class TokenAuthenticationService {
   private static String TOKEN_PREFIX = "Bearer";
   private static String HEADER_STRING = "Authorization";
 
-  @Autowired
-  private UserRepository userRepo;
-  
   public void addAuthentication(HttpServletResponse res, String email, Collection<? extends GrantedAuthority> authorities) {
     Claims claims = Jwts.claims().setSubject(email);
     claims.put("roles", authorities.stream().map(s -> s.toString()).collect(Collectors.toList()));

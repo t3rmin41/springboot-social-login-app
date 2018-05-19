@@ -57,7 +57,7 @@ server:
     port: 8802
 google:
     resource:
-        redirectUri: http://localhost:8802/google/login
+        redirectUri: http://localhost:8802/googlelogin
 
 ---
 
@@ -67,7 +67,7 @@ server:
     port: 8801
 google:
     resource:
-        redirectUri: http://localhost:8801/google/login
+        redirectUri: http://localhost:8801/googlelogin
 
 ---
 
@@ -77,4 +77,4 @@ server:
     port: 8800
 google:
     resource:
-        redirectUri: http://localhost:8800/google/login
+        redirectUri: http://localhost:8800/googlelogin

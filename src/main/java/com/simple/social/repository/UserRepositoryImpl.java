@@ -35,7 +35,7 @@ public class UserRepositoryImpl implements UserRepository {
   public UserDao getUserByEmail(String email) {
     UserDao userDao = null;
     try {
-      String q = "SELECT u FROM UserDao u LEFT JOIN FETCH u.roles WHERE u.email = :pemail AND u.type = 'APP'";
+      String q = "SELECT u FROM UserDao u LEFT JOIN FETCH u.roles WHERE u.email = :pemail";
       TypedQuery<UserDao> query = em.createQuery(q, UserDao.class);
       query.setParameter("pemail", email);
       userDao = query.getSingleResult();
@@ -64,7 +64,7 @@ public class UserRepositoryImpl implements UserRepository {
   @Override
   @Transactional
   public UserDao getUserByEmailAndPassword(String email, String password) {
-    String q = "SELECT u FROM UserDao u WHERE u.email = :pemail AND u.password = :ppassword AND u.type = 'APP'";
+    String q = "SELECT u FROM UserDao u WHERE u.email = :pemail AND u.password = :ppassword";
     TypedQuery<UserDao> query = em.createQuery(q, UserDao.class);
     query.setParameter("pemail", email);
     query.setParameter("ppassword", password);
@@ -79,7 +79,7 @@ public class UserRepositoryImpl implements UserRepository {
   @Override
   @Transactional
   public UserDao getUserById(Long id) {
-    String q = "SELECT u FROM UserDao u LEFT JOIN FETCH u.roles WHERE u.id = :pid AND u.type = 'APP'";
+    String q = "SELECT u FROM UserDao u LEFT JOIN FETCH u.roles WHERE u.id = :pid";
     TypedQuery<UserDao> query = em.createQuery(q, UserDao.class);
     query.setParameter("pid", id);
     return query.getSingleResult();
