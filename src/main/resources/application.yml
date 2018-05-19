@@ -35,8 +35,8 @@ spring:
 #    clientSecret: lPQdkmsBZqJCDgcGkPT2On7o
     google:
         client:
-            clientId: 931600010012-n9b2jb57i4fm2ohp28niqb11lv9u34cf.apps.googleusercontent.com
-            clientSecret: lPQdkmsBZqJCDgcGkPT2On7o
+            clientId: 337933304404-uav04294ppeagcqnhkrbr2g88t5ndrcv.apps.googleusercontent.com
+            clientSecret: 73DgkxIUtFhmvB1uLFGlOh0R
             accessTokenUri: https://www.googleapis.com/oauth2/v3/token
             userAuthorizationUri: https://accounts.google.com/o/oauth2/auth
             tokenName: oauth_token

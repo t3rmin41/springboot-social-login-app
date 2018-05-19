@@ -104,12 +104,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   public OAuth2RestTemplate googleOpenIdTemplate(OAuth2ClientContext clientContext) {
       return new OAuth2RestTemplate(googleOpenId(), clientContext);
   }
-  
-//  @Bean
-//  @ConfigurationProperties("google")
-//  public ClientResources google() {
-//      return new ClientResources();
-//  }
 
   @Override
   public void configure(WebSecurity web) throws Exception {
@@ -144,7 +138,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
       .addFilterAfter(new OAuth2ClientContextFilter(), AbstractPreAuthenticatedProcessingFilter.class)
       .addFilterAfter(googleLoginFilter(), OAuth2ClientContextFilter.class);
   }
-
 
   @Override
   protected void configure(AuthenticationManagerBuilder auth) throws Exception {

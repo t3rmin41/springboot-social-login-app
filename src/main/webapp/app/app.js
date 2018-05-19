@@ -24,7 +24,7 @@
         });
       } ]).config([ '$httpProvider', function($httpProvider) {
         $httpProvider.interceptors.push('TokenAuthInterceptor');
-        //$httpProvider.interceptors.push('GoogleLoginInterceptor');
+        $httpProvider.interceptors.push('GoogleLoginInterceptor');
         //$httpProvider.interceptors.push('HttpErrorInterceptor');
       } ]).factory('TokenAuthInterceptor', function($cookies) {
           return {
@@ -39,12 +39,8 @@
     })
     .factory('GoogleLoginInterceptor', function($rootScope, $q, $log, $location){
       return {
-        request : function(request) {
-          console.log("Request");
-          return request;
-        },
         response: function(response) {
-          console.log("Response");
+          console.log(response);
           return response;
         }
       };

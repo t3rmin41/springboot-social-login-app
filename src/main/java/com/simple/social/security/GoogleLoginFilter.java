@@ -123,8 +123,6 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
       logger.error("{}", e);
     }
     tokenService.addAuthentication(res, email, authorities);
-//    res.setStatus(HttpServletResponse.SC_OK);
-//    res.sendRedirect("/");
   }
   
   public void verifyClaims(Map claims) {

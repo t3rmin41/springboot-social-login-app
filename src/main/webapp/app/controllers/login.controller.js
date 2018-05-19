@@ -5,10 +5,14 @@
         .module('app')
         .controller('LoginController', LoginController);
 
-    LoginController.$inject = ['$rootScope', '$scope', '$cookies', '$location', '$window', 'LoginService', 'UserService'];
+    LoginController.$inject = ['$rootScope', '$scope', '$cookies', '$location', '$uibModal', '$window', '$sce', 'LoginService', 'UserService'];
 
-    function LoginController($rootScope, $scope, $cookies, $location, $window, LoginService, UserService) {
+    function LoginController($rootScope, $scope, $cookies, $location, $uibModal, $window, $sce, LoginService, UserService) {
       
+        $window.inviteCallback = function() {
+            console.log('hi');
+        };
+    	
       $scope.login = function() {
         LoginService.login($scope.credentials, loginSuccessCallback, loginErrorCallback);
       };
@@ -20,27 +24,22 @@
       $scope.loginGoogle = function() {
         LoginService.loginGoogle(loginSuccessCallback, loginErrorCallback);
       };
-      
-      $scope.processForm = function() {
-        console.log("Form processed");
-        //$location.path("/");
-      };
-      
-      var changeLocation = function(url, forceReload) {
-        $scope = $scope || angular.element(document).scope();
-        if(forceReload || $scope.$$phase) {
-          $window.location = url;
-        }
-        else {
-          //only use this if you want to replace the history stack
-          //$location.path(url).replace();
 
-          //this this if you want to change the URL and add it to the history stack
-          $location.path(url);
-          $scope.$apply();
-        }
-      };
-      
+//      $scope.loginGoogle = function() {
+//        //$window.open("/googlelogin", "popup", "width=300,height=200,left=10,top=150");
+//        var modal = $uibModal.open({
+//            resolve: {
+//              LoginService: LoginService
+//            },
+//            size: 'md',
+//            templateUrl: '/googlelogin',
+//            controller: SocialLoginModalController
+//          });
+//          modal.result.then(function(){
+//            console.log("SocialLogin then");
+//          }, function(){});
+//      };
+
       var loginSuccessCallback = function(data, status, headers) {
         $cookies.put('token', headers('Authorization'));
         $cookies.put('authenticated', true);
@@ -66,5 +65,11 @@
         error.message = data.message;
         $scope.error = error;
       };
+    }
+    
+    angular.module('app').controller('SocialLoginModalController', SocialLoginModalController);
+    SocialLoginModalController.$inject = ['$scope', '$uibModalInstance', '$cookies', '$routeParams', '$location', 'LoginService'];
+    function SocialLoginModalController($scope, $uibModalInstance, $cookies, $routeParams, $location, LoginService) {
+    
     }
 })();
