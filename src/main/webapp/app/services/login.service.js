@@ -30,7 +30,7 @@
     
     function loginFacebook(success, error) {
       $http({
-        url: '/facebook/login',
+        url: '/facebooklogin',
         method: 'POST',
         data: {scope: "public_profile"},
         headers : {
@@ -56,16 +56,16 @@
     
     function loginGoogle(success, error) {
     $http({
-      url: '/google/login',
-      method: 'POST',
-      data: {scope: "public_profile"},
-      headers : {
-        "Content-Type" : "application/x-www-form-urlencoded",
-        "Access-Control-Allow-Origin" : "*",
-        "Access-Control-Allow-Methods" : "OPTIONS, HEAD, GET, POST, PUT, DELETE",
-        "Access-Control-Allow-Headers" : "X-Requested-With, X-Auth-Token, Content-Type, Content-Length, Authorization"
-        
-      }
+      url: '/googlelogin',
+      method: 'GET',
+//      data: {scope: "public_profile"},
+//      headers : {
+//        "Content-Type" : "application/x-www-form-urlencoded",
+//        "Access-Control-Allow-Origin" : "*",
+//        "Access-Control-Allow-Methods" : "OPTIONS, HEAD, GET, POST, PUT, DELETE",
+//        "Access-Control-Allow-Headers" : "X-Requested-With, X-Auth-Token, Content-Type, Content-Length, Authorization"
+//        
+//      }
     }).success(success).error(error);
   }
     
