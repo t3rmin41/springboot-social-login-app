@@ -94,7 +94,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
       details.setClientSecret(clientSecret);
       details.setAccessTokenUri(accessTokenUri);
       details.setUserAuthorizationUri(userAuthorizationUri);
-      details.setScope(Arrays.asList("openid", "email"));
+      details.setScope(Arrays.asList("openid", "profile", "email"));
       details.setPreEstablishedRedirectUri(redirectUri);
       details.setUseCurrentUri(false);
       return details;
@@ -134,18 +134,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
       http.csrf().disable();
       http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
       http
-        .addFilterAfter(new OAuth2ClientContextFilter(), AbstractPreAuthenticatedProcessingFilter.class)
-        .addFilterAfter(googleLoginFilter(), OAuth2ClientContextFilter.class);
-        //.httpBasic().authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/googlelogin"))
-      http
           .authorizeRequests()
           .antMatchers("/login*","/signin/**","/signup/**").permitAll()
           .anyRequest().authenticated()
-        //.and()
-        //  .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
         .and()
           .addFilterBefore(loginFilters(), UsernamePasswordAuthenticationFilter.class)
           .addFilterBefore(new JWTAuthFilter(), UsernamePasswordAuthenticationFilter.class);
+      http
+      .addFilterAfter(new OAuth2ClientContextFilter(), AbstractPreAuthenticatedProcessingFilter.class)
+      .addFilterAfter(googleLoginFilter(), OAuth2ClientContextFilter.class);
   }
 
 
@@ -168,15 +165,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     filter.setFilters(filters);
     return filter;
   }
-  
-//  private Filter ssoFilter(ClientResources client, String path) {
-//    OAuth2ClientAuthenticationProcessingFilter filter = new OAuth2ClientAuthenticationProcessingFilter(path);
-//    OAuth2RestTemplate template = new OAuth2RestTemplate(client.getClient(), oauth2ClientContext);
-//    filter.setRestTemplate(template);
-//    UserInfoTokenServices tokenServices = new UserInfoTokenServices(client.getResource().getUserInfoUri(), client.getClient().getClientId());
-//    tokenServices.setRestTemplate(template);
-//    filter.setTokenServices(tokenServices);
-//    return filter;
-//  }
-  
+
 }

@@ -34,7 +34,9 @@ import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.simple.social.ApplicationContextProvider;
@@ -94,25 +96,6 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
     }
   }
 
-  public void verifyClaims(Map claims) {
-    int exp = (int) claims.get("exp");
-    Date expireDate = new Date(exp * 1000L);
-    Date now = new Date();
-    if (expireDate.before(now) || !claims.get("iss").equals(issuer) || !claims.get("aud").equals(clientId)) {
-        throw new RuntimeException("Invalid claims");
-    }
-  }
-
-  private RsaVerifier verifier(String kid) throws Exception {
-    JwkProvider provider = new UrlJwkProvider(new URL(jwkUrl));
-    Jwk jwk = provider.get(kid);
-    return new RsaVerifier((RSAPublicKey) jwk.getPublicKey());
-  }
-
-  public void setRestTemplate(OAuth2RestTemplate restTemplate2) {
-    restTemplate = restTemplate2;
-  }
-  
   @Override
   protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain, Authentication auth)
   throws IOException, ServletException {
@@ -140,6 +123,27 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
       logger.error("{}", e);
     }
     tokenService.addAuthentication(res, email, authorities);
+//    res.setStatus(HttpServletResponse.SC_OK);
+//    res.sendRedirect("/");
   }
   
+  public void verifyClaims(Map claims) {
+    int exp = (int) claims.get("exp");
+    Date expireDate = new Date(exp * 1000L);
+    Date now = new Date();
+    if (expireDate.before(now) || !claims.get("iss").equals(issuer) || !claims.get("aud").equals(clientId)) {
+        throw new RuntimeException("Invalid claims");
+    }
+  }
+
+  private RsaVerifier verifier(String kid) throws Exception {
+    JwkProvider provider = new UrlJwkProvider(new URL(jwkUrl));
+    Jwk jwk = provider.get(kid);
+    return new RsaVerifier((RSAPublicKey) jwk.getPublicKey());
+  }
+
+  public void setRestTemplate(OAuth2RestTemplate restTemplate2) {
+    restTemplate = restTemplate2;
+  }
+
 }

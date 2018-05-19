@@ -17,8 +17,6 @@
             controller: 'LoginController'
         })
         .when('/googlelogin', {
-//            templateUrl: 'app/views/home.html',
-//            controller: 'HomeController'
             redirectTo : '/'
         })
         .otherwise({
@@ -26,6 +24,7 @@
         });
       } ]).config([ '$httpProvider', function($httpProvider) {
         $httpProvider.interceptors.push('TokenAuthInterceptor');
+        //$httpProvider.interceptors.push('GoogleLoginInterceptor');
         //$httpProvider.interceptors.push('HttpErrorInterceptor');
       } ]).factory('TokenAuthInterceptor', function($cookies) {
           return {
@@ -37,9 +36,22 @@
               return config;
             }
           };
-     })
-     /*
-     .factory('HttpErrorInterceptor', function($rootScope, $q, $log, $location){
+    })
+    .factory('GoogleLoginInterceptor', function($rootScope, $q, $log, $location){
+      return {
+        request : function(request) {
+          console.log("Request");
+          return request;
+        },
+        response: function(response) {
+          console.log("Response");
+          return response;
+        }
+      };
+    })
+    /**/
+    /*
+    .factory('HttpErrorInterceptor', function($rootScope, $q, $log, $location){
        return {
          responseError: function(response) {
            //var httpErrorMessage = "";
