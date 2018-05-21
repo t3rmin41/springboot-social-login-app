@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Import;
 import com.simple.social.config.ApplicationConfig;
 import com.simple.social.config.JpaConfig;
 import com.simple.social.config.MvcConfig;
+import com.simple.social.security.GoogleIdConfig;
 import com.simple.social.security.SecurityConfig;
 
 @SpringBootApplication
