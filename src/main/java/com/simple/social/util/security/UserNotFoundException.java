@@ -1,4 +1,4 @@
-package com.simple.social.security;
+package com.simple.social.util.security;
 
 @SuppressWarnings("serial")
 public class UserNotFoundException extends Exception {

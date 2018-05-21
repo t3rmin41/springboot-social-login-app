@@ -1,4 +1,4 @@
-package com.simple.social.security;
+package com.simple.social.filter;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -39,8 +39,10 @@ import com.simple.social.domain.RoleBean;
 import com.simple.social.domain.UserBean;
 import com.simple.social.enums.RoleType;
 import com.simple.social.enums.UserType;
+import com.simple.social.service.TokenAuthenticationService;
 import com.simple.social.service.UserService;
-
+import com.simple.social.util.security.GoogleIdConnectUserDetails;
+import com.simple.social.util.security.NoopAuthenticationManager;
 import com.auth0.jwk.Jwk;
 import com.auth0.jwk.JwkProvider;
 import com.auth0.jwk.UrlJwkProvider;
@@ -64,7 +66,7 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
   @Value("${spring.google.resource.jwkUrl}")
   private String jwkUrl;
   
-  protected GoogleLoginFilter(String url) {
+  public GoogleLoginFilter(String url) {
     super(new AntPathRequestMatcher(url));
     setAuthenticationManager(new NoopAuthenticationManager());
   }
@@ -118,8 +120,8 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
       logger.error("{}", e);
     }
     tokenService.addAuthentication(res, email, authorities);
-//    res.setStatus(HttpServletResponse.SC_OK);
-//    res.sendRedirect("/");
+    //res.setStatus(HttpServletResponse.SC_OK);
+    //res.sendRedirect("/");
   }
   
   public void verifyClaims(Map claims) {

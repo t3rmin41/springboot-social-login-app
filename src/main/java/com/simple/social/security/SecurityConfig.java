@@ -22,6 +22,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.filter.CompositeFilter;
+import com.simple.social.filter.GoogleLoginFilter;
+import com.simple.social.filter.JWTAuthFilter;
+import com.simple.social.filter.JWTLoginFilter;
 
 @Configuration
 @EnableOAuth2Client

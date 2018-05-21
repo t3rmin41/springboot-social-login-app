@@ -25,6 +25,7 @@
       } ]).config([ '$httpProvider', function($httpProvider) {
         $httpProvider.interceptors.push('TokenAuthInterceptor');
         //$httpProvider.interceptors.push('GoogleLoginInterceptor');
+        //$httpProvider.interceptors.push('RedirectInterceptor');
         //$httpProvider.interceptors.push('HttpErrorInterceptor');
       } ]).factory('TokenAuthInterceptor', function($cookies) {
           return {
@@ -37,10 +38,23 @@
             }
           };
     })
+    /*
     .factory('GoogleLoginInterceptor', function($rootScope, $q, $log, $location){
       return {
         request : function(request) {
-          console.log("Request");
+          //console.log("Request");
+          return request;
+        },
+        response: function(response) {
+          console.log("Response status : " + response.status);
+          return response;
+        }
+      };
+    })
+    .factory('RedirectInterceptor', function($rootScope, $q, $log, $location){
+      return {
+        request : function(request) {
+          //console.log("Request");
           return request;
         },
         response: function(response) {

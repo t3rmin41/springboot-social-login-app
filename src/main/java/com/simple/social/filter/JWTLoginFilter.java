@@ -1,4 +1,4 @@
-package com.simple.social.security;
+package com.simple.social.filter;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -14,6 +14,8 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.simple.social.ApplicationContextProvider;
+import com.simple.social.service.TokenAuthenticationService;
+import com.simple.social.util.security.UserCredentials;
 
 public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
 
