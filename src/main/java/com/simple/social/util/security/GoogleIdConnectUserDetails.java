@@ -1,4 +1,4 @@
-package com.simple.social.security;
+package com.simple.social.util.security;
 
 import java.util.Arrays;
 import java.util.Collection;

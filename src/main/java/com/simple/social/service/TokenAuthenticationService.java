@@ -1,4 +1,4 @@
-package com.simple.social.security;
+package com.simple.social.service;
 
 import java.util.Collection;
 import java.util.Date;
@@ -18,6 +18,7 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
 import org.springframework.stereotype.Service;
 import com.simple.social.repository.UserRepository;
+import com.simple.social.util.security.UserNotFoundException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
