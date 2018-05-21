@@ -1,4 +1,4 @@
-package com.simple.social.security;
+package com.simple.social.filter;
 
 import java.io.IOException;
 import java.util.Date;
@@ -20,6 +20,8 @@ import org.springframework.web.filter.GenericFilterBean;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.simple.social.ApplicationContextProvider;
+import com.simple.social.service.TokenAuthenticationService;
+import com.simple.social.util.security.UserNotFoundException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.SignatureException;
 

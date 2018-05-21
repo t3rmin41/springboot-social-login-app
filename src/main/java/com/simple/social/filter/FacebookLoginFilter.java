@@ -1,4 +1,4 @@
-package com.simple.social.security;
+package com.simple.social.filter;
 
 import java.io.IOException;
 import javax.servlet.FilterChain;
@@ -11,6 +11,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import com.simple.social.ApplicationContextProvider;
+import com.simple.social.service.TokenAuthenticationService;
 
 public class FacebookLoginFilter extends AbstractAuthenticationProcessingFilter {
 

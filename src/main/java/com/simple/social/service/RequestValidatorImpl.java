@@ -4,7 +4,7 @@ import java.util.List;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
-import com.simple.social.security.UserNotAllowedException;
+import com.simple.social.util.security.UserNotAllowedException;
 
 @Service
 public class RequestValidatorImpl implements RequestValidator {

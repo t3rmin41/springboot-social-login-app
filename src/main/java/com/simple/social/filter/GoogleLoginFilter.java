@@ -1,16 +1,14 @@
-package com.simple.social.security;
+package com.simple.social.filter;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -19,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -42,8 +39,10 @@ import com.simple.social.domain.RoleBean;
 import com.simple.social.domain.UserBean;
 import com.simple.social.enums.RoleType;
 import com.simple.social.enums.UserType;
+import com.simple.social.service.TokenAuthenticationService;
 import com.simple.social.service.UserService;
-
+import com.simple.social.util.security.GoogleIdConnectUserDetails;
+import com.simple.social.util.security.NoopAuthenticationManager;
 import com.auth0.jwk.Jwk;
 import com.auth0.jwk.JwkProvider;
 import com.auth0.jwk.UrlJwkProvider;
@@ -57,7 +56,7 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
   
   @Autowired
   private OAuth2RestOperations restTemplate;
-  
+
   @Value("${spring.google.client.clientId}")
   private String clientId;
 
@@ -67,7 +66,7 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
   @Value("${spring.google.resource.jwkUrl}")
   private String jwkUrl;
   
-  protected GoogleLoginFilter(String url) {
+  public GoogleLoginFilter(String url) {
     super(new AntPathRequestMatcher(url));
     setAuthenticationManager(new NoopAuthenticationManager());
   }
@@ -94,25 +93,6 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
     }
   }
 
-  public void verifyClaims(Map claims) {
-    int exp = (int) claims.get("exp");
-    Date expireDate = new Date(exp * 1000L);
-    Date now = new Date();
-    if (expireDate.before(now) || !claims.get("iss").equals(issuer) || !claims.get("aud").equals(clientId)) {
-        throw new RuntimeException("Invalid claims");
-    }
-  }
-
-  private RsaVerifier verifier(String kid) throws Exception {
-    JwkProvider provider = new UrlJwkProvider(new URL(jwkUrl));
-    Jwk jwk = provider.get(kid);
-    return new RsaVerifier((RSAPublicKey) jwk.getPublicKey());
-  }
-
-  public void setRestTemplate(OAuth2RestTemplate restTemplate2) {
-    restTemplate = restTemplate2;
-  }
-  
   @Override
   protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain, Authentication auth)
   throws IOException, ServletException {
@@ -140,6 +120,27 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
       logger.error("{}", e);
     }
     tokenService.addAuthentication(res, email, authorities);
+    //res.setStatus(HttpServletResponse.SC_OK);
+    //res.sendRedirect("/");
   }
   
+  public void verifyClaims(Map claims) {
+    int exp = (int) claims.get("exp");
+    Date expireDate = new Date(exp * 1000L);
+    Date now = new Date();
+    if (expireDate.before(now) || !claims.get("iss").equals(issuer) || !claims.get("aud").equals(clientId)) {
+        throw new RuntimeException("Invalid claims");
+    }
+  }
+
+  private RsaVerifier verifier(String kid) throws Exception {
+    JwkProvider provider = new UrlJwkProvider(new URL(jwkUrl));
+    Jwk jwk = provider.get(kid);
+    return new RsaVerifier((RSAPublicKey) jwk.getPublicKey());
+  }
+
+  public void setRestTemplate(OAuth2RestTemplate restTemplate2) {
+    restTemplate = restTemplate2;
+  }
+
 }
