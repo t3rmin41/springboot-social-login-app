@@ -38,9 +38,14 @@
     $scope.logout = function() {
       LoginService.logout(logoutCallback);
     };
+    
+    $scope.showPrivacyPolicy = function() {
+      $location.path("/privacypolicy");
+    };
 
     var logoutCallback = function(data, status, headers) {
       $cookies.put('authenticated', false);
+      $cookies.put('userLoggedOut', true);
       $scope.authenticated = false;
       $scope.userLoggedOut = true;
       $location.path("/login");

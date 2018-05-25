@@ -2,6 +2,7 @@ package com.simple.social.filter;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Date;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -19,6 +20,8 @@ import com.simple.social.util.security.UserCredentials;
 
 public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
 
+  private static long EXPIRATIONTIME = 86400_000; // 1 day
+  
   public JWTLoginFilter(String url, AuthenticationManager authManager) {
     super(new AntPathRequestMatcher(url));
     setAuthenticationManager(authManager);
@@ -41,7 +44,7 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
   protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain, Authentication auth)
   throws IOException, ServletException {
     TokenAuthenticationService tokenService = ApplicationContextProvider.getApplicationContext().getBean(TokenAuthenticationService.class);
-    tokenService.addAuthentication(res, auth.getName(), auth.getAuthorities());
+    tokenService.addAuthentication(res, auth.getName(), auth.getAuthorities(), new Date(System.currentTimeMillis() + EXPIRATIONTIME));
   }
   
 }

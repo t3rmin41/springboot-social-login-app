@@ -34,8 +34,8 @@ public class UserController {
   
   @RequestMapping(value = "/login/success", method = RequestMethod.POST)
   public @ResponseBody UserBean loginSuccessfull(HttpSession session, Principal principal) {
-      UserBean bean = users.getUserByEmail(principal.getName());
-      return bean;
+    UserBean bean = users.getUserByEmail(principal.getName());
+    return bean;
   }
   
   @RequestMapping(value = "/logout", method = RequestMethod.POST)
