@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.support.destination.JmsDestinationAccessor;
 import com.simple.social.jms.SessionQueueSender;
 import com.simple.social.jms.SessionQueueSenderImpl;
 
@@ -28,7 +27,11 @@ public class ActiveMqConfig {
     broker.addConnector(BROKER_URL);
     broker.setPersistent(false);
     broker.setUseShutdownHook(true);
-    //broker.setUseJmx(true);
+    broker.setUseJmx(true);
+    ManagementContext managementContext = broker.getManagementContext();
+    managementContext.setCreateConnector(true);
+    managementContext.setConnectorPort(1099);
+    managementContext.setRmiServerPort(1098);
     broker.start();
     return broker;
   }
