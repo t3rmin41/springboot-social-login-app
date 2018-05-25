@@ -1,6 +1,7 @@
 package com.simple.social.filter;
 
 import java.io.IOException;
+import java.util.Date;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -33,7 +34,7 @@ public class FacebookLoginFilter extends AbstractAuthenticationProcessingFilter 
   protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain, Authentication auth)
   throws IOException, ServletException {
     TokenAuthenticationService tokenService = ApplicationContextProvider.getApplicationContext().getBean(TokenAuthenticationService.class);
-    tokenService.addAuthentication(res, auth.getName(), auth.getAuthorities());
+    tokenService.addAuthentication(res, auth.getName(), auth.getAuthorities(), new Date());
   }
   
 }

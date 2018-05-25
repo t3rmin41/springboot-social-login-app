@@ -14,7 +14,10 @@ spring:
             tokenName: oauth_token
             authenticationScheme: query
             clientAuthenticationScheme: form
-            scope: profile
+            scope: 
+                - openid
+                - email
+                - profile
         resource:
             userInfoUri: https://www.googleapis.com/userinfo/v2/me
             preferTokenInfo: false
@@ -29,7 +32,7 @@ server:
     port: 8802
 google:
     resource:
-        redirectUri: http://localhost:8802/googlelogin
+        redirectUri: http://localhost:8802/google/login
 
 ---
 
@@ -39,7 +42,7 @@ server:
     port: 8801
 google:
     resource:
-        redirectUri: http://localhost:8801/googlelogin
+        redirectUri: http://localhost:8801/google/login
 
 ---
 
@@ -49,4 +52,4 @@ server:
     port: 8800
 google:
     resource:
-        redirectUri: http://localhost:8800/googlelogin
+        redirectUri: http://localhost:8800/google/login

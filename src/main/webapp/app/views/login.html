@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container" data-ng-controller="LoginController">
 <div class="row">
   <div class="col-md-5 col-md-offset-3" style="padding-bottom: 4em">
   </div>
@@ -23,20 +23,7 @@
 </div>
 <div class="row">
   <div class="col-md-5 col-md-offset-3" style="padding-top: 3em; padding-bottom:1em">
-    <h4>Login with link using:</h4>
-  </div>
-</div>
-<div class="row">
-  <div class="col-md-1 col-md-offset-3">
-  <a href="/googlelogin" style="display: inline">
-    <button type="submit" class="btn btn-danger">
-    Google <span class="fa fa-google-plus"></span>
-    </button>
-  </a>
-</div>
-<div class="row">
-  <div class="col-md-5 col-md-offset-3" style="padding-top: 3em; padding-bottom:1em">
-    <h4>Login with callback using:</h4>
+    <h4>Login with:</h4>
   </div>
 </div>
 <div class="row">
@@ -51,7 +38,8 @@
 </div>
 <div class="row">
   <div class="col-md-5 col-md-offset-3" style="padding-top: 3em; padding-bottom:1em">
-    <a href="/privacypolicy">Privacy policy</a>
+    <a href="javascript:void(0)" ng-click="showPrivacyPolicy()">Privacy policy</a>
   </div>
+</div>
 </div>
 </div>

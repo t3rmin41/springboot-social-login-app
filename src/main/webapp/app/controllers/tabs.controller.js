@@ -11,8 +11,13 @@
 
       var ctrl = this;
 
-      var hasAdmin = $cookies.getObject('user').roles.filter(function(role){ return role.code == "ADMIN"}).length > 0;
-      var hasManager = $cookies.getObject('user').roles.filter(function(role){ return role.code == "MANAGER"}).length > 0;
+      var hasAdmin = false;
+      var hasManager = false;
+      
+      if (undefined != $cookies.getObject('user')) {
+        hasAdmin = $cookies.getObject('user').roles.filter(function(role){ return role.code == "ADMIN"}).length > 0;
+        hasManager = $cookies.getObject('user').roles.filter(function(role){ return role.code == "MANAGER"}).length > 0;
+      }
 
       $scope.tabs = [
                         { id: '0', title: 'Products', path: 'app/views/product.html', ctrl : 'ProductController', selected: false, reloadEvent: 'ProductReload' }
