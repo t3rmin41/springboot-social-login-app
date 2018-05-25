@@ -2,7 +2,6 @@ package com.simple.social.jms;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
-import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import org.slf4j.Logger;
