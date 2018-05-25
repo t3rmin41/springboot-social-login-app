@@ -52,4 +52,4 @@ server:
     port: 8800
 google:
     resource:
-        redirectUri: http://localhost:8800/google/login
+        redirectUri: https://springboot-social-login-app-87.herokuapp.com/google/login
