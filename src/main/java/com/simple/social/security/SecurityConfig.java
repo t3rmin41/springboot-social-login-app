@@ -1,12 +1,15 @@
 package com.simple.social.security;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.servlet.Filter;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -23,6 +26,7 @@ import org.springframework.security.web.authentication.preauth.AbstractPreAuthen
 import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.filter.CompositeFilter;
 import com.simple.social.filter.GoogleLoginFilter;
+import com.simple.social.filter.GoogleObtainTokenFilter;
 import com.simple.social.filter.JWTAuthFilter;
 import com.simple.social.filter.JWTLoginFilter;
 
@@ -33,6 +37,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Autowired
   private DataSource dataSource;
+  
+  @Autowired
+  private OAuth2RestTemplate restTemplate;
 
   @Bean
   public PasswordEncoder passwordEncoder() {
@@ -44,15 +51,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
       return new RequestContextListener();
   }
 
-  @Autowired
-  private OAuth2RestTemplate restTemplate;
-
   @Bean
   public GoogleLoginFilter googleLoginFilter() {
-    final GoogleLoginFilter googleLoginFilter = new GoogleLoginFilter("/googlelogin");
+    final GoogleLoginFilter googleLoginFilter = new GoogleLoginFilter("/google/login");
     googleLoginFilter.setRestTemplate(restTemplate);
     return googleLoginFilter;
   }
+  
+  @Bean
+  public GoogleObtainTokenFilter obtainTokenFilter() {
+    final GoogleObtainTokenFilter googleObtainTokenFilter = new GoogleObtainTokenFilter("/google/obtaintoken");
+    return googleObtainTokenFilter;
+  }
+
 
   @Override
   public void configure(WebSecurity web) throws Exception {
@@ -78,14 +89,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
       http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
       http
           .authorizeRequests()
-          .antMatchers("/login*","/signin/**","/signup/**").permitAll()
+          .antMatchers("/login*", "/signin/**", "/signup/**").permitAll()
           .anyRequest().authenticated()
         .and()
           .addFilterBefore(loginFilters(), UsernamePasswordAuthenticationFilter.class)
-          .addFilterBefore(new JWTAuthFilter(), UsernamePasswordAuthenticationFilter.class);
-      http
-      .addFilterAfter(new OAuth2ClientContextFilter(), AbstractPreAuthenticatedProcessingFilter.class)
-      .addFilterAfter(googleLoginFilter(), OAuth2ClientContextFilter.class);
+          .addFilterBefore(new JWTAuthFilter(), UsernamePasswordAuthenticationFilter.class)
+          .addFilterAfter(new OAuth2ClientContextFilter(), AbstractPreAuthenticatedProcessingFilter.class)
+          .addFilterAfter(googleLoginFilter(), OAuth2ClientContextFilter.class)
+          .addFilterAfter(obtainTokenFilter(), OAuth2ClientContextFilter.class)
+          ;
   }
 
 

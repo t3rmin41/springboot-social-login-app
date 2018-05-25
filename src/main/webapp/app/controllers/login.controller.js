@@ -9,6 +9,17 @@
 
     function LoginController($rootScope, $scope, $cookies, $location, $window, LoginService, UserService) {
       
+      var ctrl = this;
+
+      $scope.googleLoginClicked = false;
+      $scope.authenticated = false;
+      $scope.userLoggedOut = false;
+      
+      ctrl.$onInit = function() {
+        //console.log('LoginController initialized');
+        ctrl.getInitialCookies();
+      };
+      
       $scope.login = function() {
         LoginService.login($scope.credentials, loginSuccessCallback, loginErrorCallback);
       };
@@ -18,32 +29,32 @@
       };
       
       $scope.loginGoogle = function() {
+        $cookies.put('googleLoginClicked', true);
         LoginService.loginGoogle(loginSuccessCallback, loginErrorCallback);
       };
       
-      $scope.processForm = function() {
-        console.log("Form processed");
-        //$location.path("/");
+      $scope.loginGoogleWithoutClick = function() {
+        LoginService.loginGoogle(loginSuccessCallback, loginErrorCallback);
       };
-      
-      var changeLocation = function(url, forceReload) {
-        $scope = $scope || angular.element(document).scope();
-        if(forceReload || $scope.$$phase) {
-          $window.location = url;
-        }
-        else {
-          //only use this if you want to replace the history stack
-          //$location.path(url).replace();
 
-          //this this if you want to change the URL and add it to the history stack
-          $location.path(url);
-          $scope.$apply();
+      $scope.showPrivacyPolicy = function() {
+        $location.path("/privacypolicy");
+      }
+      
+      ctrl.getInitialCookies = function() {
+        $scope.googleLoginClicked = $cookies.get('googleLoginClicked');
+        $scope.authenticated = $cookies.get('authenticated');
+        $scope.userLoggedOut = $cookies.get('userLoggedOut');
+        //if ($scope.googleLoginClicked != undefined && $scope.googleLoginClicked && ) {
+        if ("true" == $scope.googleLoginClicked && "true" != $scope.userLoggedOut) {
+          $scope.loginGoogleWithoutClick();
         }
-      };
+      }
       
       var loginSuccessCallback = function(data, status, headers) {
         $cookies.put('token', headers('Authorization'));
         $cookies.put('authenticated', true);
+        $cookies.put('userLoggedOut', false);
         $scope.$root.$broadcast('UserlistReload', 'event data');
         delete $scope.userLoggedOut;
         delete $scope.$root.httpErrorMessage;
@@ -54,15 +65,14 @@
           $cookies.putObject('user', data);
           $location.path("/");
         }, function(){});
-//        UserService.getUserInfo(function(data, status, headers){
-//          console.log("UserInfo:"+data);
-//        },
-//          function(data, status, headers){
-//          console.log("Error:"+data);
-//        });
       };
+      
       var loginErrorCallback = function(data, status, headers) {
         var error = {};
+        if (null == data || headers('GoogleLoginRequired') == "true") {
+          $cookies.put('GoogleLoginRequired', true);
+          window.location.href = "/google/obtaintoken";
+        }
         error.message = data.message;
         $scope.error = error;
       };

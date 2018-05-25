@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.assertj.core.util.Arrays;
@@ -27,21 +28,34 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Service
 public class TokenAuthenticationService {
 
-  private static long EXPIRATIONTIME = 86400_000; // 1 day
   private static String SECRET = "ThisIsASecret";
   private static String TOKEN_PREFIX = "Bearer";
+  private static String TOKEN_SEPARATOR = " ";
   private static String HEADER_STRING = "Authorization";
 
-  public void addAuthentication(HttpServletResponse res, String email, Collection<? extends GrantedAuthority> authorities) {
+  public void addAuthentication(HttpServletResponse res, String email, Collection<? extends GrantedAuthority> authorities, Date expirationDate) {
     Claims claims = Jwts.claims().setSubject(email);
     claims.put("roles", authorities.stream().map(s -> s.toString()).collect(Collectors.toList()));
-    
     String JWT = Jwts.builder()
         .setClaims(claims)
-        .setExpiration(new Date(System.currentTimeMillis() + EXPIRATIONTIME))
+        .setExpiration(expirationDate)
         .signWith(SignatureAlgorithm.HS512, SECRET)
         .compact();
-    res.addHeader(HEADER_STRING, TOKEN_PREFIX + " " + JWT);
+    res.addHeader(HEADER_STRING, TOKEN_PREFIX + TOKEN_SEPARATOR + JWT);
+  }
+  
+  public void addAuthenticationWithCookies(HttpServletResponse res, String email, Collection<? extends GrantedAuthority> authorities, String messageId, Date expirationDate) {
+    Claims claims = Jwts.claims().setSubject(email);
+    claims.put("roles", authorities.stream().map(s -> s.toString()).collect(Collectors.toList()));
+    String JWT = Jwts.builder()
+        .setClaims(claims)
+        .setExpiration(expirationDate)
+        .signWith(SignatureAlgorithm.HS512, SECRET)
+        .compact();
+    res.addHeader(HEADER_STRING, TOKEN_PREFIX + TOKEN_SEPARATOR + JWT);
+    res.addCookie(new Cookie("GoogleAuthenticated", "true"));
+    res.addCookie(new Cookie("Bearer", JWT));
+    res.addCookie(new Cookie("MessageId", messageId));
   }
 
   public String getAuthenticatedUsername(HttpServletRequest request)  throws UserNotFoundException {
@@ -51,7 +65,7 @@ public class TokenAuthenticationService {
       // parse the token.
       email = Jwts.parser()
           .setSigningKey(SECRET)
-          .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
+          .parseClaimsJws(token.replace(TOKEN_PREFIX + TOKEN_SEPARATOR, ""))
           .getBody()
           .getSubject();
     }
@@ -67,7 +81,7 @@ public class TokenAuthenticationService {
     String token = request.getHeader(HEADER_STRING);
     Jws<Claims> claims = Jwts.parser()
         .setSigningKey(SECRET)
-        .parseClaimsJws(token.replace(TOKEN_PREFIX, ""));
+        .parseClaimsJws(token.replace(TOKEN_PREFIX + TOKEN_SEPARATOR, ""));
     List<String> rolesAsString = (List<String>) claims.getBody().get("roles");
     rolesAsString.stream().forEach(rS -> {
       roles.add(new SimpleGrantedAuthority(rS));
