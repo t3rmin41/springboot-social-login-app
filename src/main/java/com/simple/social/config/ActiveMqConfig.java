@@ -17,7 +17,7 @@ import com.simple.social.jms.SessionQueueSenderImpl;
 public class ActiveMqConfig {
 
   public static final String BROKER_URL = "tcp://localhost:61616";
-  //public static final String BROKER_URL = "vm://embedded";
+  //public static final String BROKER_URL = "vm://embedded?broker.persistent=false,useShutdownHook=true";
   public static final String QUEUE = "session.queue";
   private static final String BROKER_USERNAME = "admin";
   private static final String BROKER_PASSWORD = "admin";
@@ -27,12 +27,9 @@ public class ActiveMqConfig {
     BrokerService broker = new BrokerService();
     broker.addConnector(BROKER_URL);
     broker.setPersistent(false);
+    broker.setUseShutdownHook(true);
     //broker.setUseJmx(true);
     broker.start();
-    //ManagementContext managementContext = broker.getManagementContext();
-    //managementContext.setCreateConnector(true);
-    //managementContext.setConnectorPort(1099);
-    //managementContext.setRmiServerPort(1098);
     return broker;
   }
   

@@ -132,12 +132,12 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
                                              .setEmail(email).setPassword("123").setEnabled(true);
         List<RoleBean> roles = new LinkedList<RoleBean>();
         roles.add(new RoleBean().setCode(RoleType.CUSTOMER.toString()).setTitle(RoleType.CUSTOMER.getTitle()));
-        authorities.add(new SimpleGrantedAuthority(RoleType.CUSTOMER.toString()));
+        authorities.add(new SimpleGrantedAuthority("ROLE_"+RoleType.CUSTOMER.toString()));
         newUserBean.getRoles().addAll(roles);
         userService.saveUserFromSocial(newUserBean, UserType.GOOGLE);
       } else {
         userBean.getRoles().stream().forEach(r -> {
-          authorities.add(new SimpleGrantedAuthority(r.getCode()));
+          authorities.add(new SimpleGrantedAuthority("ROLE_"+r.getCode()));
         });
       }
     } catch (NoSuchFieldException | IllegalAccessException e) {

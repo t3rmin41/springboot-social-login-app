@@ -16,8 +16,8 @@
       $scope.userLoggedOut = false;
       
       ctrl.$onInit = function() {
-        console.log('LoginController initialized');
-        ctrl.setInitialCookies();
+        //console.log('LoginController initialized');
+        ctrl.getInitialCookies();
       };
       
       $scope.login = function() {
@@ -41,12 +41,12 @@
         $location.path("/privacypolicy");
       }
       
-      ctrl.setInitialCookies = function() {
+      ctrl.getInitialCookies = function() {
         $scope.googleLoginClicked = $cookies.get('googleLoginClicked');
         $scope.authenticated = $cookies.get('authenticated');
         $scope.userLoggedOut = $cookies.get('userLoggedOut');
         //if ($scope.googleLoginClicked != undefined && $scope.googleLoginClicked && ) {
-        if ($scope.googleLoginClicked && !$scope.userLoggedOut) {
+        if ("true" == $scope.googleLoginClicked && "true" != $scope.userLoggedOut) {
           $scope.loginGoogleWithoutClick();
         }
       }
