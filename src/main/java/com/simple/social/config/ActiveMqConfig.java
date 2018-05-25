@@ -3,7 +3,7 @@ package com.simple.social.config;
 import javax.jms.ConnectionFactory;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
-import org.apache.activemq.broker.jmx.ManagementContext;
+//import org.apache.activemq.broker.jmx.ManagementContext;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,11 +27,11 @@ public class ActiveMqConfig {
     broker.addConnector(BROKER_URL);
     broker.setPersistent(false);
     broker.setUseShutdownHook(true);
-    broker.setUseJmx(true);
-    ManagementContext managementContext = broker.getManagementContext();
-    managementContext.setCreateConnector(true);
-    managementContext.setConnectorPort(1099);
-    managementContext.setRmiServerPort(1098);
+//    broker.setUseJmx(true);
+//    ManagementContext managementContext = broker.getManagementContext();
+//    managementContext.setCreateConnector(true);
+//    managementContext.setConnectorPort(1099);
+//    managementContext.setRmiServerPort(1098);
     broker.start();
     return broker;
   }
