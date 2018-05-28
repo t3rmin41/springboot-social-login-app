@@ -54,9 +54,10 @@
       ctrl.getFacebookLoginSettings = function() {
         $scope.facebookLoginClicked = $cookies.get('facebookLoginClicked');
         $scope.authenticated = $cookies.get('authenticated');
-        $scope.userLoggedOut = $cookies.get('userLoggedOut');
+        //$scope.userLoggedOut = $cookies.get('userLoggedOut');
         //if ($scope.googleLoginClicked != undefined && $scope.googleLoginClicked && ) {
-        if ("true" == $scope.facebookLoginClicked && "true" !=  $scope.userLoggedOut) {
+        //if ("true" == $scope.facebookLoginClicked && "true" !=  $scope.userLoggedOut) {
+        if ("true" == $scope.facebookLoginClicked) {
           $scope.loginFacebookWithoutClick();
         } else {
           $scope.dataLoaded = true;
@@ -66,9 +67,10 @@
       ctrl.getGoogleLoginSettings = function() {
         $scope.googleLoginClicked = $cookies.get('googleLoginClicked');
         $scope.authenticated = $cookies.get('authenticated');
-        $scope.userLoggedOut = $cookies.get('userLoggedOut');
+        //$scope.userLoggedOut = $cookies.get('userLoggedOut');
         //if ($scope.googleLoginClicked != undefined && $scope.googleLoginClicked && ) {
-        if ("true" == $scope.googleLoginClicked && "true" !=  $scope.userLoggedOut) {
+        //if ("true" == $scope.googleLoginClicked && "true" !=  $scope.userLoggedOut) {
+        if ("true" == $scope.googleLoginClicked) {
           $scope.loginGoogleWithoutClick();
         } else {
           $scope.dataLoaded = true;
@@ -78,7 +80,7 @@
       var loginSuccessCallback = function(data, status, headers) {
         $cookies.put('token', headers('Authorization'));
         $cookies.put('authenticated', true);
-        $cookies.put('userLoggedOut', false);
+        //$cookies.put('userLoggedOut', false);
         $scope.$root.$broadcast('UserlistReload', 'event data');
         delete $scope.userLoggedOut;
         delete $scope.$root.httpErrorMessage;
@@ -95,7 +97,7 @@
       var loginErrorCallback = function(data, status, headers) {
         var error = {};
         if (null == data || headers('GoogleLoginRequired') == "true") {
-          $cookies.put('GoogleLoginRequired', true);
+          //$cookies.put('GoogleLoginRequired', true);
           window.location.href = "/google/obtaintoken";
         } else {
           error.message = data.message;
