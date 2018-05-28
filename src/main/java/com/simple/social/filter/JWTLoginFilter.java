@@ -14,9 +14,11 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.simple.social.ApplicationContextProvider;
 import com.simple.social.service.TokenAuthenticationService;
 import com.simple.social.util.security.UserCredentials;
+import com.simple.social.util.security.UserNotAllowedException;
 
 public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
 
@@ -30,7 +32,12 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
   @Override
   public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse response)
   throws AuthenticationException, IOException, ServletException {
-    UserCredentials creds = new ObjectMapper().readValue(req.getInputStream(), UserCredentials.class);
+    UserCredentials creds = null;
+    try {
+      creds = new ObjectMapper().readValue(req.getInputStream(), UserCredentials.class);
+    } catch (MismatchedInputException e) {
+      throw new UserNotAllowedException("User or token not found");
+    }
     return getAuthenticationManager().authenticate(
         new UsernamePasswordAuthenticationToken(
             creds.getEmail(),

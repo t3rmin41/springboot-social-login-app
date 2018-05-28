@@ -28,7 +28,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.RsaVerifier;
-import org.springframework.security.oauth2.client.OAuth2RestOperations;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.client.resource.UserRedirectRequiredException;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -56,11 +55,10 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
 
   private static Logger logger = LoggerFactory.getLogger(GoogleLoginFilter.class);
 
+  private OAuth2RestTemplate restTemplate;
+  
   @Autowired
   private UserService userService;
-
-  @Autowired
-  private OAuth2RestOperations restTemplate;
 
   @Autowired
   private JmsTemplate jmsTemplate;

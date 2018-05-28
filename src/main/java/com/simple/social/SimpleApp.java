@@ -11,11 +11,12 @@ import com.simple.social.config.ActiveMqConfig;
 import com.simple.social.config.ApplicationConfig;
 import com.simple.social.config.JpaConfig;
 import com.simple.social.config.MvcConfig;
+import com.simple.social.security.FacebookConfig;
 import com.simple.social.security.GoogleIdConfig;
 import com.simple.social.security.SecurityConfig;
 
 @SpringBootApplication
-@Import({ApplicationConfig.class, JpaConfig.class, MvcConfig.class, SecurityConfig.class, GoogleIdConfig.class, ActiveMqConfig.class})
+@Import({ApplicationConfig.class, JpaConfig.class, MvcConfig.class, SecurityConfig.class, GoogleIdConfig.class, FacebookConfig.class, ActiveMqConfig.class})
 public class SimpleApp { // extends SpringBootServletInitializer {
 
   private static Logger log = LoggerFactory.getLogger(SimpleApp.class);

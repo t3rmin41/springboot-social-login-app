@@ -1,8 +1,8 @@
 package com.simple.social.security;
 
 import java.util.Arrays;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.client.OAuth2ClientContext;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
@@ -12,6 +12,9 @@ import org.springframework.security.oauth2.client.token.grant.code.Authorization
 @Configuration
 public class GoogleIdConfig {
 
+  @Autowired
+  private OAuth2ClientContext oauth2ClientContext;
+  
   @Value("${spring.google.client.clientId}")
   private String clientId;
   
@@ -27,7 +30,6 @@ public class GoogleIdConfig {
   @Value("${google.resource.redirectUri}")
   private String redirectUri;
 
-  @Bean
   public OAuth2ProtectedResourceDetails googleOpenId() {
       AuthorizationCodeResourceDetails details = new AuthorizationCodeResourceDetails();
       details.setClientId(clientId);
@@ -40,9 +42,8 @@ public class GoogleIdConfig {
       return details;
   }
 
-  @Bean
-  public OAuth2RestTemplate googleOpenIdTemplate(OAuth2ClientContext clientContext) {
-      return new OAuth2RestTemplate(googleOpenId(), clientContext);
+  public OAuth2RestTemplate googleOpenIdTemplate() {
+      return new OAuth2RestTemplate(googleOpenId(), oauth2ClientContext);
   }
   
 }

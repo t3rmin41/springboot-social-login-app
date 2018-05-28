@@ -31,7 +31,7 @@
     function loginFacebook(success, error) {
       $http({
         url: '/facebook/login',
-        method: 'POST',
+        method: 'GET',
         headers : {
           "Content-Type" : "application/x-www-form-urlencoded",
           "Access-Control-Allow-Origin" : "*",
