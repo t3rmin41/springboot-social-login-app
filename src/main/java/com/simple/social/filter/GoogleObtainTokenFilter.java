@@ -36,7 +36,7 @@ public class GoogleObtainTokenFilter extends AbstractAuthenticationProcessingFil
   @Override
   public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
   throws AuthenticationException, IOException, ServletException {
-    logger.info("GoogleObtainTokenFilter : attemptAuthentication");
+    //logger.info("GoogleObtainTokenFilter : attemptAuthentication");
     sessionQueueSender.sendMessageToQueue(request.getSession().getId());
     //trying to obtain token initiates redirect to Google
     OAuth2AccessToken accessToken = null;

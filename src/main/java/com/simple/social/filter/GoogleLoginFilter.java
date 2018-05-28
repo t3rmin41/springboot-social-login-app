@@ -85,7 +85,7 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
   @Override
   public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
   throws AuthenticationException, IOException, ServletException {
-    logger.info("GoogleLoginFilter : attemptAuthentication");
+    //logger.info("GoogleLoginFilter : attemptAuthentication");
     OAuth2AccessToken accessToken = null;
     try {
         accessToken = restTemplate.getAccessToken();
@@ -142,13 +142,13 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
     } catch (NoSuchFieldException | IllegalAccessException e) {
       logger.error("{}", e);
     }
-    logger.info("GoogleLoginFilter : successfulAuthentication");
-    //chain.doFilter(req, res); //include other filters in chain
+    //logger.info("GoogleLoginFilter : successfulAuthentication");
     if (null != message) {
       tokenService.addAuthenticationWithCookies(res, email, authorities, req.getSession().getId(), accessToken.getExpiration());
       res.sendRedirect("/");
     } else {
       tokenService.addAuthentication(res, email, authorities, accessToken.getExpiration());
+      //chain.doFilter(req, res); //include other filters in chain
     }
   }
 

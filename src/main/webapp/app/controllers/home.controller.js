@@ -45,9 +45,11 @@
 
     var logoutCallback = function(data, status, headers) {
       $cookies.put('authenticated', false);
-      $cookies.put('userLoggedOut', true);
+      //$cookies.put('userLoggedOut', true);
+      $cookies.put('googleLoginClicked', false);
+      $cookies.put('facebookLoginClicked', false);
       $scope.authenticated = false;
-      $scope.userLoggedOut = true;
+      //$scope.userLoggedOut = true;
       $location.path("/login");
     };
 
