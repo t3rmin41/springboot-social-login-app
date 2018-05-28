@@ -26,6 +26,10 @@ public class ActiveMqConfig {
     BrokerService broker = new BrokerService();
     broker.addConnector(BROKER_URL);
     broker.setPersistent(false);
+    broker.getSystemUsage().setSendFailIfNoSpace(true);
+    broker.getSystemUsage().setSendFailIfNoSpaceAfterTimeout(5000);
+    broker.getSystemUsage().getMemoryUsage().setPercentOfJvmHeap(20);
+    broker.getSystemUsage().getTempUsage().setPercentLimit(20);
     broker.setUseShutdownHook(true);
 //    broker.setUseJmx(true);
 //    ManagementContext managementContext = broker.getManagementContext();
