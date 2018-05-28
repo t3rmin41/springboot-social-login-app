@@ -14,8 +14,8 @@
     $scope.privacyPolicyExternalPage = {};
     
     ctrl.$onInit = function() {
-      console.log("Privacy policy controller initialized");
-      PrivacypolicyService.loadExternalPrivacyPolicy(loadSuccessCallback, loadErrorCallback);
+      //console.log("Privacy policy controller initialized");
+      //PrivacypolicyService.loadExternalPrivacyPolicy(loadSuccessCallback, loadErrorCallback);
       //$scope.privacyPolicyExternalPage = $sce.trustAsResourceUrl('https://www.iubenda.com/privacy-policy/42083542');
     };
 
