@@ -11,26 +11,36 @@
       
       var ctrl = this;
 
+      $scope.dataLoaded = false;
       $scope.googleLoginClicked = false;
-      $scope.authenticated = false;
-      $scope.userLoggedOut = false;
+      $scope.facebookLoginClicked = false;
+      $scope.userLoggeOut = false;
       
       ctrl.$onInit = function() {
         //console.log('LoginController initialized');
-        ctrl.getInitialCookies();
+        //ctrl.getFacebookLoginSettings();
+        ctrl.getGoogleLoginSettings();
       };
       
       $scope.login = function() {
+        $scope.dataLoaded = false;
         LoginService.login($scope.credentials, loginSuccessCallback, loginErrorCallback);
       };
       
       $scope.loginFacebook = function() {
+        $scope.dataLoaded = false;
+        $cookies.put('facebookLoginClicked', true);
         LoginService.loginFacebook(loginSuccessCallback, loginErrorCallback);
       };
       
       $scope.loginGoogle = function() {
+        $scope.dataLoaded = false;
         $cookies.put('googleLoginClicked', true);
         LoginService.loginGoogle(loginSuccessCallback, loginErrorCallback);
+      };
+      
+      $scope.loginFacebookWithoutClick = function() {
+        LoginService.loginFacebook(loginSuccessCallback, loginErrorCallback);
       };
       
       $scope.loginGoogleWithoutClick = function() {
@@ -41,13 +51,27 @@
         $location.path("/privacypolicy");
       }
       
-      ctrl.getInitialCookies = function() {
+      ctrl.getFacebookLoginSettings = function() {
+        $scope.facebookLoginClicked = $cookies.get('facebookLoginClicked');
+        $scope.authenticated = $cookies.get('authenticated');
+        $scope.userLoggedOut = $cookies.get('userLoggedOut');
+        //if ($scope.googleLoginClicked != undefined && $scope.googleLoginClicked && ) {
+        if ("true" == $scope.facebookLoginClicked && "true" !=  $scope.userLoggedOut) {
+          $scope.loginFacebookWithoutClick();
+        } else {
+          $scope.dataLoaded = true;
+        }
+      }
+      
+      ctrl.getGoogleLoginSettings = function() {
         $scope.googleLoginClicked = $cookies.get('googleLoginClicked');
         $scope.authenticated = $cookies.get('authenticated');
         $scope.userLoggedOut = $cookies.get('userLoggedOut');
         //if ($scope.googleLoginClicked != undefined && $scope.googleLoginClicked && ) {
-        if ("true" == $scope.googleLoginClicked && "true" != $scope.userLoggedOut) {
+        if ("true" == $scope.googleLoginClicked && "true" !=  $scope.userLoggedOut) {
           $scope.loginGoogleWithoutClick();
+        } else {
+          $scope.dataLoaded = true;
         }
       }
       
@@ -64,6 +88,7 @@
           delete $scope.$root.httpErrorMessage;
           $cookies.putObject('user', data);
           $location.path("/");
+          $scope.dataLoaded = true;
         }, function(){});
       };
       
@@ -72,9 +97,11 @@
         if (null == data || headers('GoogleLoginRequired') == "true") {
           $cookies.put('GoogleLoginRequired', true);
           window.location.href = "/google/obtaintoken";
+        } else {
+          error.message = data.message;
+          $scope.error = error;
+          $scope.dataLoaded = true;
         }
-        error.message = data.message;
-        $scope.error = error;
       };
     }
 })();

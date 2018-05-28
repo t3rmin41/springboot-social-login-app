@@ -1,9 +1,16 @@
 <div class="container" data-ng-controller="LoginController">
 <div class="row">
-  <div class="col-md-5 col-md-offset-3" style="padding-bottom: 4em">
+  <div class="col-md-5 col-md-offset-4" style="padding-bottom: 4em">
+    <h3>Springboot Social login app</h3>
   </div>
 </div>
-<div class="row">
+<div ng-hide='dataLoaded' class="row">
+  <div class="col-md-5 col-md-offset-4" style="padding-bottom: 4em; padding-left: 6em">
+  <div class="loader" style='padding-bottom: 4em'></div>
+  </div>
+</div>
+
+<div ng-show='dataLoaded' class="row">
     <div class="col-md-5 col-md-offset-3">
         <div class="alert alert-danger" ng-show="error">
         {{ error.message }}
@@ -21,12 +28,12 @@
         </form>
     </div>
 </div>
-<div class="row">
+<div ng-show='dataLoaded' class="row">
   <div class="col-md-5 col-md-offset-3" style="padding-top: 3em; padding-bottom:1em">
     <h4>Login with:</h4>
   </div>
 </div>
-<div class="row">
+<div ng-show='dataLoaded' class="row">
   <div class="col-md-1 col-md-offset-3">
     <button type="submit" ng-click="loginGoogle()" class="btn btn-danger">Google <span class="fa fa-google-plus"></span></button>
   </div>
@@ -37,7 +44,7 @@
    -->
 </div>
 <div class="row">
-  <div class="col-md-5 col-md-offset-3" style="padding-top: 3em; padding-bottom:1em">
+  <div class="col-md-5 col-md-offset-5" style="padding-top: 3em; padding-bottom:1em">
     <a href="javascript:void(0)" ng-click="showPrivacyPolicy()">Privacy policy</a>
   </div>
 </div>
