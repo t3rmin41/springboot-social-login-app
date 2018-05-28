@@ -11,8 +11,6 @@
 
     var ctrl = this;
 
-    $scope.route = $route;
-
     $scope.cartAcknowledged = true;
     
     $scope.authenticated = ('true' == $cookies.get('authenticated'));

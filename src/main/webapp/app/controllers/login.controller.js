@@ -14,7 +14,7 @@
       $scope.dataLoaded = false;
       $scope.googleLoginClicked = false;
       $scope.facebookLoginClicked = false;
-      $scope.userLoggeOut = false;
+      //$scope.userLoggeOut = false;
       
       ctrl.$onInit = function() {
         //console.log('LoginController initialized');
