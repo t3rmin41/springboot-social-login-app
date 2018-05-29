@@ -33,10 +33,10 @@
         url: '/facebook/login',
         method: 'GET',
         headers : {
-          "Content-Type" : "application/x-www-form-urlencoded",
-          "Access-Control-Allow-Origin" : "*",
-          "Access-Control-Allow-Methods" : "OPTIONS, HEAD, GET, POST, PUT, DELETE",
-          "Access-Control-Allow-Headers" : "X-Requested-With, X-Auth-Token, Content-Type, Content-Length, Authorization",
+//          "Content-Type" : "application/x-www-form-urlencoded",
+//          "Access-Control-Allow-Origin" : "*",
+//          "Access-Control-Allow-Methods" : "OPTIONS, HEAD, GET, POST, PUT, DELETE",
+//          "Access-Control-Allow-Headers" : "X-Requested-With, X-Auth-Token, Content-Type, Content-Length, Authorization",
           "Access-Control-Allow-Credentials" : "true"
         }
       }).success(success).error(error);

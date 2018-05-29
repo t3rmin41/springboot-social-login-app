@@ -50,7 +50,7 @@ google:
         redirectUri: http://localhost:8802/google/login
 facebook:
     resource:
-        redirectUri: http://localhost:8801/facebook/login
+        redirectUri: http://localhost:8802/facebook/login
 
 ---
 
