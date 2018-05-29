@@ -80,6 +80,7 @@ public class FacebookLoginFilter extends AbstractAuthenticationProcessingFilter 
       final FacebookIdUserDetails fbUser = new FacebookIdUserDetails(authInfo, accessToken);
       return new UsernamePasswordAuthenticationToken(fbUser, null, fbUser.getAuthorities());
     } catch (final Exception e) {
+      response.addHeader("FacebookLoginRequired", "true");
       throw new BadCredentialsException("Could not obtain user details from token", e);
     }
   }

@@ -87,10 +87,9 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
     OAuth2AccessToken accessToken = null;
     try {
         accessToken = restTemplate.getAccessToken();
-    } catch (final OAuth2Exception e) {
-        throw new BadCredentialsException("Could not obtain access token", e);
-    } catch (final UserRedirectRequiredException e) {
+    } catch (final OAuth2Exception | UserRedirectRequiredException e) {
       response.addHeader("GoogleLoginRequired", "true");
+      throw new BadCredentialsException("Could not obtain access token", e);
     }
     try {
         final String idToken = accessToken.getAdditionalInformation().get("id_token").toString();
@@ -101,7 +100,8 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
         final GoogleIdUserDetails user = new GoogleIdUserDetails(authInfo, accessToken);
         return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
     } catch (final Exception e) {
-        throw new BadCredentialsException("Could not obtain user details from token", e);
+      response.addHeader("GoogleLoginRequired", "true");
+      throw new BadCredentialsException("Could not obtain user details from token", e);
     }
   }
 
