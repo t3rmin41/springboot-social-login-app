@@ -28,7 +28,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.RsaVerifier;
-import org.springframework.security.oauth2.client.OAuth2RestOperations;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.client.resource.UserRedirectRequiredException;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -44,7 +43,7 @@ import com.simple.social.enums.RoleType;
 import com.simple.social.enums.UserType;
 import com.simple.social.service.TokenAuthenticationService;
 import com.simple.social.service.UserService;
-import com.simple.social.util.security.GoogleIdConnectUserDetails;
+import com.simple.social.util.security.GoogleIdUserDetails;
 import com.simple.social.util.security.GoogleUserInfo;
 import com.simple.social.util.security.NoopAuthenticationManager;
 import com.auth0.jwk.Jwk;
@@ -56,11 +55,10 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
 
   private static Logger logger = LoggerFactory.getLogger(GoogleLoginFilter.class);
 
+  private OAuth2RestTemplate restTemplate;
+  
   @Autowired
   private UserService userService;
-
-  @Autowired
-  private OAuth2RestOperations restTemplate;
 
   @Autowired
   private JmsTemplate jmsTemplate;
@@ -100,7 +98,7 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
         final Jwt tokenDecoded = JwtHelper.decodeAndVerify(idToken, verifier(kid));
         final Map<String, String> authInfo = new ObjectMapper().readValue(tokenDecoded.getClaims(), Map.class);
         verifyClaims(authInfo);
-        final GoogleIdConnectUserDetails user = new GoogleIdConnectUserDetails(authInfo, accessToken);
+        final GoogleIdUserDetails user = new GoogleIdUserDetails(authInfo, accessToken);
         return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
     } catch (final Exception e) {
         throw new BadCredentialsException("Could not obtain user details from token", e);
@@ -113,21 +111,21 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
     Message message = jmsTemplate.receiveSelected("JMSCorrelationID = '"+req.getSession().getId()+"'");
     TokenAuthenticationService tokenService = ApplicationContextProvider.getApplicationContext().getBean(TokenAuthenticationService.class);
     String email = null;
-    OAuth2AccessToken accessToken = null;
-    try {
-      accessToken = restTemplate.getAccessToken();
-    } catch (final OAuth2Exception e) {
-      throw new BadCredentialsException("Could not obtain access token", e);
-    }
-    Collection<GrantedAuthority> authorities = new LinkedList<GrantedAuthority>();
     GoogleUserInfo userInfo = restTemplate.getForObject(userInfoUri, GoogleUserInfo.class);
+    GoogleIdUserDetails googleUserDetails = (GoogleIdUserDetails) auth.getPrincipal();
+    googleUserDetails.setFirstName(userInfo.getGivenName());
+    googleUserDetails.setLastName(userInfo.getFamilyName());
+    
+    Collection<GrantedAuthority> authorities = new LinkedList<GrantedAuthority>();
+    
     try {
       Field emailField = auth.getPrincipal().getClass().getDeclaredField("username");
       emailField.setAccessible(true);
       email = (String) emailField.get(auth.getPrincipal());
       UserBean userBean = userService.getUserByEmailAndType(email, UserType.GOOGLE);
       if (null == userBean) {
-        UserBean newUserBean = new UserBean().setFirstName(userInfo.getGivenName()).setLastName(userInfo.getFamilyName())
+        UserBean newUserBean = new UserBean().setFirstName(googleUserDetails.getFirstName())
+                                             .setLastName(googleUserDetails.getLastName())
                                              .setEmail(email).setPassword("123").setEnabled(true);
         List<RoleBean> roles = new LinkedList<RoleBean>();
         roles.add(new RoleBean().setCode(RoleType.CUSTOMER.toString()).setTitle(RoleType.CUSTOMER.getTitle()));
@@ -143,13 +141,11 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
       logger.error("{}", e);
     }
     //logger.info("GoogleLoginFilter : successfulAuthentication");
+    tokenService.addAuthentication(res, email, authorities, googleUserDetails.getToken().getExpiration());
     if (null != message) {
-      tokenService.addAuthenticationWithCookies(res, email, authorities, req.getSession().getId(), accessToken.getExpiration());
       res.sendRedirect("/");
-    } else {
-      tokenService.addAuthentication(res, email, authorities, accessToken.getExpiration());
-      //chain.doFilter(req, res); //include other filters in chain
     }
+    //chain.doFilter(req, res); //include other filters in chain
   }
 
   public void setRestTemplate(OAuth2RestTemplate restTemplate2) {

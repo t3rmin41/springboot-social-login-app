@@ -18,7 +18,7 @@
       
       ctrl.$onInit = function() {
         //console.log('LoginController initialized');
-        //ctrl.getFacebookLoginSettings();
+        ctrl.getFacebookLoginSettings();
         ctrl.getGoogleLoginSettings();
       };
       
@@ -96,9 +96,11 @@
       
       var loginErrorCallback = function(data, status, headers) {
         var error = {};
-        if (null == data || headers('GoogleLoginRequired') == "true") {
+        if (headers('GoogleLoginRequired') == "true") {
           //$cookies.put('GoogleLoginRequired', true);
           window.location.href = "/google/obtaintoken";
+        } else if (headers('FacebookLoginRequired') == "true") {
+          window.location.href = "/facebook/obtaintoken";
         } else {
           error.message = data.message;
           $scope.error = error;

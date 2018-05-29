@@ -15,13 +15,14 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.client.filter.OAuth2ClientContextFilter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableOAuth2Client;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.filter.CompositeFilter;
+import com.simple.social.filter.FacebookLoginFilter;
+import com.simple.social.filter.FacebookObtainTokenFilter;
 import com.simple.social.filter.GoogleLoginFilter;
 import com.simple.social.filter.GoogleObtainTokenFilter;
 import com.simple.social.filter.JWTAuthFilter;
@@ -33,10 +34,13 @@ import com.simple.social.filter.JWTLoginFilter;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Autowired
-  private DataSource dataSource;
+  private GoogleIdConfig googleIdConfig;
   
   @Autowired
-  private OAuth2RestTemplate restTemplate;
+  private FacebookConfig facebookConfig;
+  
+  @Autowired
+  private DataSource dataSource;
 
   @Bean
   public PasswordEncoder passwordEncoder() {
@@ -51,16 +55,30 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Bean
   public GoogleLoginFilter googleLoginFilter() {
     final GoogleLoginFilter googleLoginFilter = new GoogleLoginFilter("/google/login");
-    googleLoginFilter.setRestTemplate(restTemplate);
+    googleLoginFilter.setRestTemplate(googleIdConfig.googleOpenIdTemplate());
     return googleLoginFilter;
   }
   
   @Bean
-  public GoogleObtainTokenFilter obtainTokenFilter() {
+  public GoogleObtainTokenFilter obtainGoogleTokenFilter() {
     final GoogleObtainTokenFilter googleObtainTokenFilter = new GoogleObtainTokenFilter("/google/obtaintoken");
+    googleObtainTokenFilter.setRestTemplate(googleIdConfig.googleOpenIdTemplate());
     return googleObtainTokenFilter;
   }
 
+  @Bean
+  public FacebookLoginFilter facebookLoginFilter() {
+    final FacebookLoginFilter facebookLoginFilter = new FacebookLoginFilter("/facebook/login");
+    facebookLoginFilter.setRestTemplate(facebookConfig.facebookTemplate());
+    return facebookLoginFilter;
+  }
+  
+  @Bean
+  public FacebookObtainTokenFilter obtainFacebookTokenFilter() {
+    final FacebookObtainTokenFilter facebookObtainTokenFilter = new FacebookObtainTokenFilter("/facebook/obtaintoken");
+    facebookObtainTokenFilter.setRestTemplate(facebookConfig.facebookTemplate());
+    return facebookObtainTokenFilter;
+  }
 
   @Override
   public void configure(WebSecurity web) throws Exception {
@@ -93,7 +111,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
           .addFilterBefore(new JWTAuthFilter(), UsernamePasswordAuthenticationFilter.class)
           .addFilterAfter(new OAuth2ClientContextFilter(), AbstractPreAuthenticatedProcessingFilter.class)
           .addFilterAfter(googleLoginFilter(), OAuth2ClientContextFilter.class)
-          .addFilterAfter(obtainTokenFilter(), OAuth2ClientContextFilter.class)
+          .addFilterAfter(obtainGoogleTokenFilter(), OAuth2ClientContextFilter.class)
+          .addFilterAfter(facebookLoginFilter(), OAuth2ClientContextFilter.class)
+          .addFilterAfter(obtainFacebookTokenFilter(), OAuth2ClientContextFilter.class)
           ;
   }
 
