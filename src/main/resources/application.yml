@@ -23,6 +23,21 @@ spring:
             preferTokenInfo: false
             issuer: accounts.google.com
             jwkUrl: https://www.googleapis.com/oauth2/v2/certs
+    facebook:
+        client:
+            appId: 625813347760256
+            appSecret: a53ae62be648b8a78e6892958440a3f8
+            appAccessToken: 1c9ed458c0ce7fc0958d27ec817497da
+            accessTokenUri: https://graph.facebook.com/v2.12/oauth/access_token
+            userAuthorizationUri: https://www.facebook.com/v2.12/dialog/oauth
+            tokenName: oauth_token
+            authenticationScheme: query
+            clientAuthenticationScheme: form
+            scope:
+                - email
+                - public_profile
+        resource:
+            userInfoUri: https://graph.facebook.com/v2.12/me
 
 ---
 
@@ -33,6 +48,9 @@ server:
 google:
     resource:
         redirectUri: http://localhost:8802/google/login
+facebook:
+    resource:
+        redirectUri: http://localhost:8802/facebook/login
 
 ---
 
@@ -43,6 +61,9 @@ server:
 google:
     resource:
         redirectUri: http://localhost:8801/google/login
+facebook:
+    resource:
+        redirectUri: http://localhost:8801/facebook/login
 
 ---
 
@@ -52,4 +73,7 @@ server:
     port: 8800
 google:
     resource:
-        redirectUri: http://localhost:8800/google/login
+        redirectUri: https://springboot-social-login-app-87.herokuapp.com/google/login
+facebook:
+    resource:
+        redirectUri: https://springboot-social-login-app-87.herokuapp.com/facebook/login
