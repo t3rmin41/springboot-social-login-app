@@ -4,6 +4,7 @@ import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.oauth2.client.DefaultOAuth2ClientContext;
 import org.springframework.security.oauth2.client.OAuth2ClientContext;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.client.resource.OAuth2ProtectedResourceDetails;
@@ -45,8 +46,8 @@ public class FacebookConfig {
     return details;
   }
 
-  public OAuth2RestTemplate facebookTemplate() {
-    return new OAuth2RestTemplate(facebookConfig(), oauth2ClientContext);
-  }
+//  public OAuth2RestTemplate facebookTemplate() {
+//    return new OAuth2RestTemplate(facebookConfig(), oauth2ClientContext);
+//  }
   
 }
