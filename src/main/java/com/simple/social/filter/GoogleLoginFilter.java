@@ -41,6 +41,7 @@ import com.simple.social.domain.RoleBean;
 import com.simple.social.domain.UserBean;
 import com.simple.social.enums.RoleType;
 import com.simple.social.enums.UserType;
+import com.simple.social.jms.SessionQueueSender;
 import com.simple.social.service.TokenAuthenticationService;
 import com.simple.social.service.UserService;
 import com.simple.social.util.security.GoogleIdUserDetails;
@@ -56,6 +57,9 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
   private static Logger logger = LoggerFactory.getLogger(GoogleLoginFilter.class);
 
   private OAuth2RestTemplate restTemplate;
+  
+  @Autowired
+  private SessionQueueSender sessionQueueSender;
   
   @Autowired
   private UserService userService;
@@ -87,9 +91,13 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
     OAuth2AccessToken accessToken = null;
     try {
         accessToken = restTemplate.getAccessToken();
-    } catch (final OAuth2Exception | UserRedirectRequiredException e) {
-      response.addHeader("GoogleLoginRequired", "true");
+        //accessToken = restTemplate.
+    } catch (final OAuth2Exception e) {
+      setGoogleLoginRequiredHeader(response);
+      response.sendRedirect("/");
       throw new BadCredentialsException("Could not obtain access token", e);
+    } catch (UserRedirectRequiredException e) {
+      setGoogleLoginRequiredHeader(response);
     }
     try {
         final String idToken = accessToken.getAdditionalInformation().get("id_token").toString();
@@ -100,7 +108,8 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
         final GoogleIdUserDetails user = new GoogleIdUserDetails(authInfo, accessToken);
         return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
     } catch (final Exception e) {
-      response.addHeader("GoogleLoginRequired", "true");
+      restTemplate.getOAuth2ClientContext().setAccessToken(null);
+      setGoogleLoginRequiredHeader(response);
       throw new BadCredentialsException("Could not obtain user details from token", e);
     }
   }
@@ -167,5 +176,10 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
     return new RsaVerifier((RSAPublicKey) jwk.getPublicKey());
   }
 
-
+  private void setGoogleLoginRequiredHeader(HttpServletResponse response) {
+    if (null == response.getHeader("GoogleLoginRequired") || !"true".equals(response.getHeader("GoogleLoginRequired"))) {
+      response.addHeader("GoogleLoginRequired", "true");
+    }
+  }
+  
 }
