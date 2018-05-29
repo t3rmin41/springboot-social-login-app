@@ -15,6 +15,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.OAuth2ClientContext;
+import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.client.filter.OAuth2ClientContextFilter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableOAuth2Client;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -34,14 +36,17 @@ import com.simple.social.filter.JWTLoginFilter;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Autowired
+  private DataSource dataSource;
+
+  @Autowired
   private GoogleIdConfig googleIdConfig;
   
   @Autowired
   private FacebookConfig facebookConfig;
   
   @Autowired
-  private DataSource dataSource;
-
+  private OAuth2ClientContext oauth2ClientContext;
+  
   @Bean
   public PasswordEncoder passwordEncoder() {
       return new BCryptPasswordEncoder();
@@ -52,31 +57,61 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
       return new RequestContextListener();
   }
 
+//  @Bean
+//  public FacebookOAuth2ClientContext facebookOAuth2ClientContext() {
+//    return new FacebookOAuth2ClientContext();
+//  }
+//  
+//  @Bean
+//  public GoogleOAuth2ClientContext GoogleOAuth2ClientContext() {
+//    return new GoogleOAuth2ClientContext();
+//  }
+  
+//  @Bean
+//  public GoogleIdConfig googleIdConfig() {
+//    return new GoogleIdConfig();
+//  }
+//  
+//  @Bean
+//  public FacebookConfig facebookConfig() {
+//    return new FacebookConfig();
+//  }
+  
+  @Bean
+  public OAuth2RestTemplate googleOAuth2RestTemplate() {
+    return new OAuth2RestTemplate(googleIdConfig.googleOpenId(), oauth2ClientContext);
+  }
+  
+  @Bean
+  public OAuth2RestTemplate facebookOAuth2RestTemplate() {
+    return new OAuth2RestTemplate(facebookConfig.facebookConfig(), oauth2ClientContext);
+  }
+  
   @Bean
   public GoogleLoginFilter googleLoginFilter() {
     final GoogleLoginFilter googleLoginFilter = new GoogleLoginFilter("/google/login");
-    googleLoginFilter.setRestTemplate(googleIdConfig.googleOpenIdTemplate());
+    googleLoginFilter.setRestTemplate(googleOAuth2RestTemplate());
     return googleLoginFilter;
   }
   
   @Bean
   public GoogleObtainTokenFilter obtainGoogleTokenFilter() {
     final GoogleObtainTokenFilter googleObtainTokenFilter = new GoogleObtainTokenFilter("/google/obtaintoken");
-    googleObtainTokenFilter.setRestTemplate(googleIdConfig.googleOpenIdTemplate());
+    googleObtainTokenFilter.setRestTemplate(googleOAuth2RestTemplate());
     return googleObtainTokenFilter;
   }
 
   @Bean
   public FacebookLoginFilter facebookLoginFilter() {
     final FacebookLoginFilter facebookLoginFilter = new FacebookLoginFilter("/facebook/login");
-    facebookLoginFilter.setRestTemplate(facebookConfig.facebookTemplate());
+    facebookLoginFilter.setRestTemplate(facebookOAuth2RestTemplate());
     return facebookLoginFilter;
   }
   
   @Bean
   public FacebookObtainTokenFilter obtainFacebookTokenFilter() {
     final FacebookObtainTokenFilter facebookObtainTokenFilter = new FacebookObtainTokenFilter("/facebook/obtaintoken");
-    facebookObtainTokenFilter.setRestTemplate(facebookConfig.facebookTemplate());
+    facebookObtainTokenFilter.setRestTemplate(facebookOAuth2RestTemplate());
     return facebookObtainTokenFilter;
   }
 

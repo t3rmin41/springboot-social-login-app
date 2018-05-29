@@ -33,6 +33,7 @@ import com.simple.social.domain.RoleBean;
 import com.simple.social.domain.UserBean;
 import com.simple.social.enums.RoleType;
 import com.simple.social.enums.UserType;
+import com.simple.social.jms.SessionQueueSender;
 import com.simple.social.service.TokenAuthenticationService;
 import com.simple.social.service.UserService;
 import com.simple.social.util.security.FacebookIdUserDetails;
@@ -46,6 +47,9 @@ public class FacebookLoginFilter extends AbstractAuthenticationProcessingFilter 
   private static final Logger logger = LoggerFactory.getLogger(FacebookLoginFilter.class);
   
   private OAuth2RestTemplate restTemplate;
+  
+  @Autowired
+  private SessionQueueSender sessionQueueSender;
   
   @Autowired
   private UserService userService;
@@ -70,9 +74,13 @@ public class FacebookLoginFilter extends AbstractAuthenticationProcessingFilter 
     OAuth2AccessToken accessToken = null;
     try {
         accessToken = restTemplate.getAccessToken();
-    } catch (final OAuth2Exception | UserRedirectRequiredException e) {
-      response.addHeader("FacebookLoginRequired", "true");
+    } catch (final OAuth2Exception e) {
+      //sessionQueueSender.sendMessageToQueue(request.getSession().getId());
+      setFacebookLoginRequiredHeader(response);
+      response.sendRedirect("/");
       throw new BadCredentialsException("Could not obtain access token", e);
+    } catch (final  UserRedirectRequiredException e) {
+      setFacebookLoginRequiredHeader(response);
     }
     try {
       String json = restTemplate.getForObject(userInfoUri+"?"+FACEBOOK_FIELDS+"&access_token="+accessToken.getValue(), String.class);
@@ -80,7 +88,8 @@ public class FacebookLoginFilter extends AbstractAuthenticationProcessingFilter 
       final FacebookIdUserDetails fbUser = new FacebookIdUserDetails(authInfo, accessToken);
       return new UsernamePasswordAuthenticationToken(fbUser, null, fbUser.getAuthorities());
     } catch (final Exception e) {
-      response.addHeader("FacebookLoginRequired", "true");
+      restTemplate.getOAuth2ClientContext().setAccessToken(null);
+      setFacebookLoginRequiredHeader(response);
       throw new BadCredentialsException("Could not obtain user details from token", e);
     }
   }
@@ -117,6 +126,12 @@ public class FacebookLoginFilter extends AbstractAuthenticationProcessingFilter 
   
   public void setRestTemplate(OAuth2RestTemplate restTemplate) {
     this.restTemplate = restTemplate;
+  }
+  
+  private void setFacebookLoginRequiredHeader(HttpServletResponse response) {
+    if (null == response.getHeader("FacebookLoginRequired") || !"true".equals(response.getHeader("FacebookLoginRequired"))) {
+      response.addHeader("FacebookLoginRequired", "true");
+    }
   }
   
 }
