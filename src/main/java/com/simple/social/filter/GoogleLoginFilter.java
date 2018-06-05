@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.UserInfoTokenServices;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,20 +29,22 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.RsaVerifier;
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.client.resource.UserRedirectRequiredException;
+import org.springframework.security.oauth2.client.token.AccessTokenRequest;
+import org.springframework.security.oauth2.client.token.DefaultAccessTokenRequest;
+import org.springframework.security.oauth2.client.token.grant.code.AuthorizationCodeAccessTokenProvider;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-
+import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.simple.social.ApplicationContextProvider;
 import com.simple.social.domain.RoleBean;
 import com.simple.social.domain.UserBean;
 import com.simple.social.enums.RoleType;
 import com.simple.social.enums.UserType;
-import com.simple.social.jms.SessionQueueSender;
+import com.simple.social.security.GoogleIdConfig;
 import com.simple.social.service.TokenAuthenticationService;
 import com.simple.social.service.UserService;
 import com.simple.social.util.security.GoogleIdUserDetails;
@@ -56,17 +59,24 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
 
   private static Logger logger = LoggerFactory.getLogger(GoogleLoginFilter.class);
 
-  private OAuth2RestTemplate restTemplate;
+  private static GoogleIdConfig config;
+  
+  private static UserInfoTokenServices userInfoTokenService;
+  private static AuthorizationCodeAccessTokenProvider accessTokenProvider = new AuthorizationCodeAccessTokenProvider();
+  
+  private static final String GOOGLE_REQUEST = "?alt=json";
   
   @Autowired
-  private SessionQueueSender sessionQueueSender;
-  
+  private RestTemplate restTemplate;
+
   @Autowired
   private UserService userService;
 
   @Autowired
   private JmsTemplate jmsTemplate;
   
+  private OAuth2AccessToken accessToken = null;
+
   @Value("${spring.google.client.clientId}")
   private String clientId;
 
@@ -75,12 +85,12 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
 
   @Value("${spring.google.resource.jwkUrl}")
   private String jwkUrl;
-  
-  @Value("${spring.google.resource.userInfoUri}")
-  private String userInfoUri;
-  
-  public GoogleLoginFilter(String url) {
+
+  public GoogleLoginFilter(String url, GoogleIdConfig googleIdConfig) {
     super(new AntPathRequestMatcher(url));
+    config = googleIdConfig;
+    userInfoTokenService = new UserInfoTokenServices(config.getResourceProperties().getUserInfoUri(), config.getResourceDetails().getClientId());
+    accessTokenProvider.setStateMandatory(false);
     setAuthenticationManager(new NoopAuthenticationManager());
   }
 
@@ -89,26 +99,40 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
   throws AuthenticationException, IOException, ServletException {
     //logger.info("GoogleLoginFilter : attemptAuthentication");
     OAuth2AccessToken accessToken = null;
+    String code = request.getParameter("code");
     try {
-        accessToken = restTemplate.getAccessToken();
-        //accessToken = restTemplate.
+      if (null == this.accessToken || request.getSession().getId() != this.accessToken.getAdditionalInformation().get("sessionId")) {
+        AccessTokenRequest accessTokenRequest = new DefaultAccessTokenRequest();
+        accessTokenRequest.setAuthorizationCode(code);
+        accessTokenRequest.setCurrentUri(config.getResourceDetails().getPreEstablishedRedirectUri());
+        accessToken = accessTokenProvider.obtainAccessToken(config.getResourceDetails(), accessTokenRequest);
+        accessToken.getAdditionalInformation().put("sessionId", request.getSession().getId());
+      }
+    } catch (OAuth2Exception | UserRedirectRequiredException e) {
+      setGoogleLoginRequiredHeader(response);
+      throw new BadCredentialsException("Could not obtain access token", e);
+    }
+    try {
+      if (null == this.accessToken || request.getSession().getId() != this.accessToken.getAdditionalInformation().get("sessionId")) {
+        this.accessToken = accessToken;
+        userInfoTokenService.loadAuthentication(accessToken.getValue());
+      }
     } catch (final OAuth2Exception e) {
       setGoogleLoginRequiredHeader(response);
       response.sendRedirect("/");
       throw new BadCredentialsException("Could not obtain access token", e);
-    } catch (UserRedirectRequiredException e) {
+    } catch (final  UserRedirectRequiredException e) {
       setGoogleLoginRequiredHeader(response);
     }
     try {
-        final String idToken = accessToken.getAdditionalInformation().get("id_token").toString();
+        final String idToken = this.accessToken.getAdditionalInformation().get("id_token").toString();
         String kid = JwtHelper.headers(idToken).get("kid");
         final Jwt tokenDecoded = JwtHelper.decodeAndVerify(idToken, verifier(kid));
         final Map<String, String> authInfo = new ObjectMapper().readValue(tokenDecoded.getClaims(), Map.class);
         verifyClaims(authInfo);
-        final GoogleIdUserDetails user = new GoogleIdUserDetails(authInfo, accessToken);
+        final GoogleIdUserDetails user = new GoogleIdUserDetails(authInfo, this.accessToken);
         return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
     } catch (final Exception e) {
-      restTemplate.getOAuth2ClientContext().setAccessToken(null);
       setGoogleLoginRequiredHeader(response);
       throw new BadCredentialsException("Could not obtain user details from token", e);
     }
@@ -120,7 +144,7 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
     Message message = jmsTemplate.receiveSelected("JMSCorrelationID = '"+req.getSession().getId()+"'");
     TokenAuthenticationService tokenService = ApplicationContextProvider.getApplicationContext().getBean(TokenAuthenticationService.class);
     String email = null;
-    GoogleUserInfo userInfo = restTemplate.getForObject(userInfoUri, GoogleUserInfo.class);
+    GoogleUserInfo userInfo = restTemplate.getForObject(config.getResourceProperties().getUserInfoUri()+GOOGLE_REQUEST+"&access_token="+this.accessToken.getValue(), GoogleUserInfo.class);
     GoogleIdUserDetails googleUserDetails = (GoogleIdUserDetails) auth.getPrincipal();
     googleUserDetails.setFirstName(userInfo.getGivenName());
     googleUserDetails.setLastName(userInfo.getFamilyName());
@@ -157,10 +181,6 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
     //chain.doFilter(req, res); //include other filters in chain
   }
 
-  public void setRestTemplate(OAuth2RestTemplate restTemplate2) {
-    this.restTemplate = restTemplate2;
-  }
-  
   private void verifyClaims(Map claims) {
     int exp = (int) claims.get("exp");
     Date expireDate = new Date(exp * 1000L);
