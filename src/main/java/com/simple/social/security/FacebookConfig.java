@@ -1,20 +1,18 @@
 package com.simple.social.security;
 
 import java.util.Arrays;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.ResourceServerProperties;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.oauth2.client.DefaultOAuth2ClientContext;
-import org.springframework.security.oauth2.client.OAuth2ClientContext;
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.client.resource.OAuth2ProtectedResourceDetails;
 import org.springframework.security.oauth2.client.token.grant.code.AuthorizationCodeResourceDetails;
 
 @Configuration
 public class FacebookConfig {
 
-  @Autowired
-  private OAuth2ClientContext oauth2ClientContext;
+  private AuthorizationCodeResourceDetails resourceDetails;
+  private ResourceServerProperties resourceProperties;
   
   @Value("${spring.facebook.client.appId}")
   private String appId;
@@ -31,10 +29,14 @@ public class FacebookConfig {
   @Value("${spring.facebook.client.userAuthorizationUri}")
   private String userAuthorizationUri;
 
+  @Value("${spring.facebook.resource.userInfoUri}")
+  private String userInfoUri;
+  
   @Value("${facebook.resource.redirectUri}")
   private String redirectUri;
 
-  public OAuth2ProtectedResourceDetails facebookConfig() {
+  @PostConstruct
+  public void initFacebookConfig() {
     AuthorizationCodeResourceDetails details = new AuthorizationCodeResourceDetails();
     details.setClientId(appId);
     details.setClientSecret(appSecret);
@@ -43,11 +45,18 @@ public class FacebookConfig {
     details.setScope(Arrays.asList("email", "public_profile"));
     details.setPreEstablishedRedirectUri(redirectUri);
     details.setUseCurrentUri(false);
-    return details;
+    ResourceServerProperties properties = new ResourceServerProperties();
+    properties.setUserInfoUri(userInfoUri);
+    resourceDetails = details;
+    resourceProperties = properties;
   }
 
-//  public OAuth2RestTemplate facebookTemplate() {
-//    return new OAuth2RestTemplate(facebookConfig(), oauth2ClientContext);
-//  }
-  
+  public AuthorizationCodeResourceDetails getResourceDetails() {
+    return resourceDetails;
+  }
+
+  public ResourceServerProperties getResourceProperties() {
+    return resourceProperties;
+  }
+
 }
