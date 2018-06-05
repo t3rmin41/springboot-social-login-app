@@ -16,7 +16,7 @@ import com.simple.social.security.GoogleIdConfig;
 import com.simple.social.security.SecurityConfig;
 
 @SpringBootApplication
-@Import({ApplicationConfig.class, JpaConfig.class, MvcConfig.class, GoogleIdConfig.class, FacebookConfig.class, SecurityConfig.class,  ActiveMqConfig.class})
+@Import({ApplicationConfig.class, JpaConfig.class, MvcConfig.class, SecurityConfig.class,  ActiveMqConfig.class})
 public class SimpleApp { // extends SpringBootServletInitializer {
 
   private static Logger log = LoggerFactory.getLogger(SimpleApp.class);
