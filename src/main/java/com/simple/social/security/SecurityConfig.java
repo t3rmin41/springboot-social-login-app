@@ -15,15 +15,10 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.OAuth2ClientContext;
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.client.filter.OAuth2ClientContextFilter;
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableOAuth2Client;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.context.annotation.SessionScope;
-import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.filter.CompositeFilter;
 import com.simple.social.filter.FacebookLoginFilter;
 import com.simple.social.filter.FacebookObtainTokenFilter;
@@ -33,7 +28,6 @@ import com.simple.social.filter.JWTAuthFilter;
 import com.simple.social.filter.JWTLoginFilter;
 
 @Configuration
-@EnableOAuth2Client
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -48,11 +42,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Bean
   public PasswordEncoder passwordEncoder() {
       return new BCryptPasswordEncoder();
-  }
-
-  @Bean
-  public RequestContextListener requestContextListener() {
-      return new RequestContextListener();
   }
 
   @Bean

@@ -4,11 +4,8 @@ import java.util.Arrays;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.ResourceServerProperties;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.oauth2.client.resource.OAuth2ProtectedResourceDetails;
 import org.springframework.security.oauth2.client.token.grant.code.AuthorizationCodeResourceDetails;
 
-@Configuration
 public class FacebookConfig {
 
   private AuthorizationCodeResourceDetails resourceDetails;

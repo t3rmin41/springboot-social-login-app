@@ -55,7 +55,6 @@ import com.auth0.jwk.Jwk;
 import com.auth0.jwk.JwkProvider;
 import com.auth0.jwk.UrlJwkProvider;
 
-
 public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
 
   private static Logger logger = LoggerFactory.getLogger(GoogleLoginFilter.class);
