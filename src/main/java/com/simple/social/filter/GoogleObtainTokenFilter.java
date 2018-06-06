@@ -5,6 +5,7 @@ import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -49,7 +50,7 @@ public class GoogleObtainTokenFilter extends AbstractAuthenticationProcessingFil
   private static UserInfoTokenServices userInfoTokenService;
   private static AuthorizationCodeAccessTokenProvider accessTokenProvider = new AuthorizationCodeAccessTokenProvider();
 
-  private static final String GOOGLE_REQUEST = "fields=id,email,first_name,last_name,picture";
+  private static final String GOOGLE_REQUEST = "?alt=json";
   
   @Value("${spring.google.client.clientId}")
   private String clientId;
@@ -66,6 +67,8 @@ public class GoogleObtainTokenFilter extends AbstractAuthenticationProcessingFil
   @Autowired
   private SessionQueueSender sessionQueueSender;
   
+  private final ReentrantLock lock = new ReentrantLock();
+  
   private OAuth2AccessToken accessToken = null;
 
   public GoogleObtainTokenFilter(String url, GoogleIdConfig googleIdConfig) {
@@ -80,47 +83,26 @@ public class GoogleObtainTokenFilter extends AbstractAuthenticationProcessingFil
   public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
   throws AuthenticationException, IOException, ServletException {
     //logger.info("GoogleObtainTokenFilter : attemptAuthentication");
-    sessionQueueSender.sendMessageToQueue(request.getSession().getId());
-    OAuth2AccessToken accessToken = null;
-    String code = request.getParameter("code");
     //trying to obtain token redirects to Google login form via UserRedirectRequiredException
+    OAuth2AccessToken accessToken = null;
+    this.lock.lock();
     try {
-      if (null == this.accessToken || request.getSession().getId() != this.accessToken.getAdditionalInformation().get("sessionId")) {
-        AccessTokenRequest accessTokenRequest = new DefaultAccessTokenRequest();
-        accessTokenRequest.setAuthorizationCode(code);
-        accessTokenRequest.setCurrentUri(config.getResourceDetails().getPreEstablishedRedirectUri());
-        accessToken = accessTokenProvider.obtainAccessToken(config.getResourceDetails(), accessTokenRequest);
-        accessToken.getAdditionalInformation().put("sessionId", request.getSession().getId());
+      sessionQueueSender.sendMessageToQueue(request.getSession().getId());
+      String code = request.getParameter("code");
+        if (null == this.accessToken || request.getSession().getId() != this.accessToken.getAdditionalInformation().get("sessionId")) {
+          AccessTokenRequest accessTokenRequest = new DefaultAccessTokenRequest();
+          accessTokenRequest.setAuthorizationCode(code);
+          accessTokenRequest.setCurrentUri(config.getResourceDetails().getPreEstablishedRedirectUri());
+          accessToken = accessTokenProvider.obtainAccessToken(config.getResourceDetails(), accessTokenRequest);
+          accessToken.getAdditionalInformation().put("sessionId", request.getSession().getId());
       }
     } catch (final OAuth2Exception e) {
         throw new BadCredentialsException("Could not obtain access token", e);
+    } finally {
+      this.lock.unlock();
     }
-    try {
-      final String idToken = accessToken.getAdditionalInformation().get("id_token").toString();
-      String kid = JwtHelper.headers(idToken).get("kid");
-      final Jwt tokenDecoded = JwtHelper.decodeAndVerify(idToken, verifier(kid));
-      final Map<String, String> authInfo = new ObjectMapper().readValue(tokenDecoded.getClaims(), Map.class);
-      verifyClaims(authInfo);
-      final GoogleIdUserDetails user = new GoogleIdUserDetails(authInfo, accessToken);
-      return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-    } catch (final Exception e) {
-      throw new BadCredentialsException("Could not obtain user details from token", e);
-    }
+    //return nullable UsernamePasswordAuthenticationToken as ObtainToken filter is needed only for UserRedirectRequiredException
+    return new UsernamePasswordAuthenticationToken(new GoogleIdUserDetails(null, null), null, null);
   }
 
-  private void verifyClaims(Map claims) {
-    int exp = (int) claims.get("exp");
-    Date expireDate = new Date(exp * 1000L);
-    Date now = new Date();
-    if (expireDate.before(now) || !claims.get("iss").equals(issuer) || !claims.get("aud").equals(clientId)) {
-        throw new RuntimeException("Invalid claims");
-    }
-  }
-
-  private RsaVerifier verifier(String kid) throws Exception {
-    JwkProvider provider = new UrlJwkProvider(new URL(jwkUrl));
-    Jwk jwk = provider.get(kid);
-    return new RsaVerifier((RSAPublicKey) jwk.getPublicKey());
-  }
-  
 }
