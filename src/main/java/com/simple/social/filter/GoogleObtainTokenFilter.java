@@ -5,6 +5,7 @@ import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -66,6 +67,8 @@ public class GoogleObtainTokenFilter extends AbstractAuthenticationProcessingFil
   @Autowired
   private SessionQueueSender sessionQueueSender;
   
+  private final ReentrantLock lock = new ReentrantLock();
+  
   private OAuth2AccessToken accessToken = null;
 
   public GoogleObtainTokenFilter(String url, GoogleIdConfig googleIdConfig) {
@@ -80,20 +83,23 @@ public class GoogleObtainTokenFilter extends AbstractAuthenticationProcessingFil
   public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
   throws AuthenticationException, IOException, ServletException {
     //logger.info("GoogleObtainTokenFilter : attemptAuthentication");
-    sessionQueueSender.sendMessageToQueue(request.getSession().getId());
-    OAuth2AccessToken accessToken = null;
-    String code = request.getParameter("code");
     //trying to obtain token redirects to Google login form via UserRedirectRequiredException
+    OAuth2AccessToken accessToken = null;
+    this.lock.lock();
     try {
-      if (null == this.accessToken || request.getSession().getId() != this.accessToken.getAdditionalInformation().get("sessionId")) {
-        AccessTokenRequest accessTokenRequest = new DefaultAccessTokenRequest();
-        accessTokenRequest.setAuthorizationCode(code);
-        accessTokenRequest.setCurrentUri(config.getResourceDetails().getPreEstablishedRedirectUri());
-        accessToken = accessTokenProvider.obtainAccessToken(config.getResourceDetails(), accessTokenRequest);
-        accessToken.getAdditionalInformation().put("sessionId", request.getSession().getId());
+      sessionQueueSender.sendMessageToQueue(request.getSession().getId());
+      String code = request.getParameter("code");
+        if (null == this.accessToken || request.getSession().getId() != this.accessToken.getAdditionalInformation().get("sessionId")) {
+          AccessTokenRequest accessTokenRequest = new DefaultAccessTokenRequest();
+          accessTokenRequest.setAuthorizationCode(code);
+          accessTokenRequest.setCurrentUri(config.getResourceDetails().getPreEstablishedRedirectUri());
+          accessToken = accessTokenProvider.obtainAccessToken(config.getResourceDetails(), accessTokenRequest);
+          accessToken.getAdditionalInformation().put("sessionId", request.getSession().getId());
       }
     } catch (final OAuth2Exception e) {
         throw new BadCredentialsException("Could not obtain access token", e);
+    } finally {
+      this.lock.unlock();
     }
     //return nullable UsernamePasswordAuthenticationToken as ObtainToken filter is needed only for UserRedirectRequiredException
     return new UsernamePasswordAuthenticationToken(new GoogleIdUserDetails(null, null), null, null);

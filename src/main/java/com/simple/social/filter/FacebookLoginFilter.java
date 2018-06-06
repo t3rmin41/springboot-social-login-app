@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 import javax.jms.Message;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -59,6 +60,8 @@ public class FacebookLoginFilter extends AbstractAuthenticationProcessingFilter 
 
   @Autowired
   private JmsTemplate jmsTemplate;
+  
+  private final ReentrantLock lock = new ReentrantLock();
 
   private OAuth2AccessToken accessToken = null;
 
@@ -77,8 +80,9 @@ public class FacebookLoginFilter extends AbstractAuthenticationProcessingFilter 
   throws AuthenticationException, IOException, ServletException {
     //logger.info("FacebookLoginFilter : attemptAuthentication");
     OAuth2AccessToken accessToken = null;
-    String code = request.getParameter("code");
+    this.lock.lock();
     try {
+      String code = request.getParameter("code");
       if (null == this.accessToken || request.getSession().getId() != this.accessToken.getAdditionalInformation().get("sessionId")) {
         AccessTokenRequest accessTokenRequest = new DefaultAccessTokenRequest();
         accessTokenRequest.setAuthorizationCode(code);
@@ -89,8 +93,10 @@ public class FacebookLoginFilter extends AbstractAuthenticationProcessingFilter 
     } catch (OAuth2Exception | UserRedirectRequiredException e) {
       setFacebookLoginRequiredHeader(response);
       throw new BadCredentialsException("Could not obtain access token", e);
+    } finally {
+      this.lock.unlock();
     }
-    
+    this.lock.lock();
     try {
       if (null == this.accessToken || request.getSession().getId() != this.accessToken.getAdditionalInformation().get("sessionId")) {
         this.accessToken = accessToken;
@@ -102,7 +108,10 @@ public class FacebookLoginFilter extends AbstractAuthenticationProcessingFilter 
       throw new BadCredentialsException("Could not obtain access token", e);
     } catch (final  UserRedirectRequiredException e) {
       setFacebookLoginRequiredHeader(response);
+    } finally {
+      this.lock.unlock();
     }
+    this.lock.lock();
     try {
       String json = restTemplate.getForObject(facebookConfig.getResourceProperties().getUserInfoUri()+FACEBOOK_FIELDS+"&access_token="+this.accessToken.getValue(), String.class);
       final Map<String, String> authInfo = new ObjectMapper().readValue(json, Map.class);
@@ -111,6 +120,8 @@ public class FacebookLoginFilter extends AbstractAuthenticationProcessingFilter 
     } catch (final Exception e) {
       setFacebookLoginRequiredHeader(response);
       throw new BadCredentialsException("Could not obtain user details from token", e);
+    } finally {
+      this.lock.unlock();
     }
   }
 
