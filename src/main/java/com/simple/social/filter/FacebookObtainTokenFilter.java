@@ -39,10 +39,7 @@ public class FacebookObtainTokenFilter extends AbstractAuthenticationProcessingF
   private static AuthorizationCodeAccessTokenProvider accessTokenProvider = new AuthorizationCodeAccessTokenProvider();
 
   private static final String FACEBOOK_FIELDS = "?fields=id,email,first_name,last_name,picture";
-  
-  @Autowired
-  private RestTemplate restTemplate;
-  
+
   @Autowired
   private SessionQueueSender sessionQueueSender;
   
@@ -75,15 +72,8 @@ public class FacebookObtainTokenFilter extends AbstractAuthenticationProcessingF
     } catch (OAuth2Exception e) {
       throw new BadCredentialsException("Could not obtain access token", e);
     }
-
-    try {
-      String json = restTemplate.getForObject(facebookConfig.getResourceProperties().getUserInfoUri()+FACEBOOK_FIELDS+"&access_token="+this.accessToken.getValue(), String.class);
-      final Map<String, String> authInfo = new ObjectMapper().readValue(json, Map.class);
-      final FacebookIdUserDetails fbUser = new FacebookIdUserDetails(authInfo, this.accessToken);
-      return new UsernamePasswordAuthenticationToken(fbUser, null, fbUser.getAuthorities());
-    } catch (final Exception e) {
-      throw new BadCredentialsException("Could not obtain user details from token", e);
-    }
+    //return nullable UsernamePasswordAuthenticationToken as ObtainToken filter is needed only for UserRedirectRequiredException
+    return new UsernamePasswordAuthenticationToken(new FacebookIdUserDetails(null, null), null, null);
   }
 
 }
