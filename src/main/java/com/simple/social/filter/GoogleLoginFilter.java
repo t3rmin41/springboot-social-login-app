@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 import javax.jms.Message;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -66,6 +67,8 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
   
   private static final String GOOGLE_REQUEST = "?alt=json";
   
+  private final ReentrantLock lock = new ReentrantLock();
+  
   @Autowired
   private RestTemplate restTemplate;
 
@@ -99,23 +102,27 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
   throws AuthenticationException, IOException, ServletException {
     //logger.info("GoogleLoginFilter : attemptAuthentication");
     OAuth2AccessToken accessToken = null;
-    String code = request.getParameter("code");
+    this.lock.lock();
     try {
+      String code = request.getParameter("code");
       if (null == this.accessToken || request.getSession().getId() != this.accessToken.getAdditionalInformation().get("sessionId")) {
-        AccessTokenRequest accessTokenRequest = new DefaultAccessTokenRequest();
-        accessTokenRequest.setAuthorizationCode(code);
-        accessTokenRequest.setCurrentUri(config.getResourceDetails().getPreEstablishedRedirectUri());
-        accessToken = accessTokenProvider.obtainAccessToken(config.getResourceDetails(), accessTokenRequest);
-        accessToken.getAdditionalInformation().put("sessionId", request.getSession().getId());
+          AccessTokenRequest accessTokenRequest = new DefaultAccessTokenRequest();
+          accessTokenRequest.setAuthorizationCode(code);
+          accessTokenRequest.setCurrentUri(config.getResourceDetails().getPreEstablishedRedirectUri());
+          accessToken = accessTokenProvider.obtainAccessToken(config.getResourceDetails(), accessTokenRequest);
+          accessToken.getAdditionalInformation().put("sessionId", request.getSession().getId());
       }
     } catch (OAuth2Exception | UserRedirectRequiredException e) {
       setGoogleLoginRequiredHeader(response);
       throw new BadCredentialsException("Could not obtain access token", e);
+    } finally {
+      this.lock.unlock();
     }
+    this.lock.lock();
     try {
       if (null == this.accessToken || request.getSession().getId() != this.accessToken.getAdditionalInformation().get("sessionId")) {
-        this.accessToken = accessToken;
-        userInfoTokenService.loadAuthentication(accessToken.getValue());
+          this.accessToken = accessToken;
+          userInfoTokenService.loadAuthentication(accessToken.getValue());
       }
     } catch (final OAuth2Exception e) {
       setGoogleLoginRequiredHeader(response);
@@ -123,7 +130,10 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
       throw new BadCredentialsException("Could not obtain access token", e);
     } catch (final  UserRedirectRequiredException e) {
       setGoogleLoginRequiredHeader(response);
+    } finally {
+      this.lock.unlock();
     }
+    this.lock.lock();
     try {
         final String idToken = this.accessToken.getAdditionalInformation().get("id_token").toString();
         String kid = JwtHelper.headers(idToken).get("kid");
@@ -135,6 +145,8 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
     } catch (final Exception e) {
       setGoogleLoginRequiredHeader(response);
       throw new BadCredentialsException("Could not obtain user details from token", e);
+    } finally {
+      this.lock.unlock();
     }
   }
 
@@ -144,7 +156,13 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
     Message message = jmsTemplate.receiveSelected("JMSCorrelationID = '"+req.getSession().getId()+"'");
     TokenAuthenticationService tokenService = ApplicationContextProvider.getApplicationContext().getBean(TokenAuthenticationService.class);
     String email = null;
-    GoogleUserInfo userInfo = restTemplate.getForObject(config.getResourceProperties().getUserInfoUri()+GOOGLE_REQUEST+"&access_token="+this.accessToken.getValue(), GoogleUserInfo.class);
+    GoogleUserInfo userInfo = null;
+    this.lock.lock();
+    try {
+      userInfo = restTemplate.getForObject(config.getResourceProperties().getUserInfoUri()+GOOGLE_REQUEST+"&access_token="+this.accessToken.getValue(), GoogleUserInfo.class);
+    } finally {
+      this.lock.unlock();
+    }
     GoogleIdUserDetails googleUserDetails = (GoogleIdUserDetails) auth.getPrincipal();
     googleUserDetails.setFirstName(userInfo.getGivenName());
     googleUserDetails.setLastName(userInfo.getFamilyName());
