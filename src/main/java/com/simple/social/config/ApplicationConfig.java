@@ -8,8 +8,8 @@ import com.simple.social.ApplicationContextProvider;
 @Configuration
 @ComponentScan(basePackages = {"com.simple.social.view.controller", "com.simple.social.rest.controller", "com.simple.social.domain",
     "com.simple.social.service", "com.simple.social.mapper", "com.simple.social.repository",
-    "com.simple.social.errorhandling", "com.simple.social.camel"
-    //, "com.simple.social.filter"
+    "com.simple.social.http.filter",
+    "com.simple.social.errorhandling", "com.simple.social.security"
 })
 public class ApplicationConfig {
 

@@ -71,7 +71,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     final FacebookLoginFilter facebookLoginFilter = new FacebookLoginFilter("/facebook/login", facebookConfig());
     return facebookLoginFilter;
   }
-  
+
   @Bean
   public FacebookObtainTokenFilter obtainFacebookTokenFilter() {
     final FacebookObtainTokenFilter facebookObtainTokenFilter = new FacebookObtainTokenFilter("/facebook/obtaintoken", facebookConfig());
@@ -114,7 +114,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
           .addFilterAfter(obtainFacebookTokenFilter(), OAuth2ClientContextFilter.class)
           ;
   }
-
 
   @Override
   protected void configure(AuthenticationManagerBuilder auth) throws Exception {

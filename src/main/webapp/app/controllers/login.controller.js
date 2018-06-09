@@ -5,10 +5,10 @@
         .module('app')
         .controller('LoginController', LoginController);
 
-    LoginController.$inject = ['$rootScope', '$scope', '$cookies', '$location', '$window', 'LoginService', 'UserService'];
+    LoginController.$inject = ['$rootScope', '$scope', '$cookies', '$location', '$uibModal', '$window', '$sce', 'LoginService', 'UserService'];
 
-    function LoginController($rootScope, $scope, $cookies, $location, $window, LoginService, UserService) {
-      
+    function LoginController($rootScope, $scope, $cookies, $location, $uibModal, $window, $sce, LoginService, UserService) {
+
       var ctrl = this;
 
       $scope.dataLoaded = false;
@@ -21,7 +21,7 @@
         ctrl.getFacebookLoginSettings(); // sequence matters - $scope.dataLoaded is not set in getFacebookLoginSettings()
         ctrl.getGoogleLoginSettings();
       };
-      
+
       $scope.login = function() {
         $scope.dataLoaded = false;
         LoginService.login($scope.credentials, loginSuccessCallback, loginErrorCallback);
@@ -38,6 +38,7 @@
         $cookies.put('googleLoginClicked', true);
         LoginService.loginGoogle(loginSuccessCallback, loginErrorCallback);
       };
+
       
       $scope.loginFacebookWithoutClick = function() {
         LoginService.loginFacebook(loginSuccessCallback, loginErrorCallback);
@@ -75,7 +76,7 @@
           $scope.dataLoaded = true;
         }
       }
-      
+
       var loginSuccessCallback = function(data, status, headers) {
         $cookies.put('token', headers('Authorization'));
         $cookies.put('authenticated', true);
@@ -108,5 +109,11 @@
           $scope.dataLoaded = true;
         }
       };
+    }
+    
+    angular.module('app').controller('SocialLoginModalController', SocialLoginModalController);
+    SocialLoginModalController.$inject = ['$scope', '$uibModalInstance', '$cookies', '$routeParams', '$location', 'LoginService'];
+    function SocialLoginModalController($scope, $uibModalInstance, $cookies, $routeParams, $location, LoginService) {
+    
     }
 })();
