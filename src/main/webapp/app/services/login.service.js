@@ -46,9 +46,6 @@
     $http({
       url: '/google/login',
       method: 'GET',
-      headers : {
-        "Access-Control-Allow-Credentials" : "true"
-      }
     }).success(success).error(error);
   }
     
