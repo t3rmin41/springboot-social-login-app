@@ -26,5 +26,5 @@ public interface UserService {
   UserBean updateUser(UserBean bean);
 
   Set<String> getRolesByEmail(String email);
-  
+
 }

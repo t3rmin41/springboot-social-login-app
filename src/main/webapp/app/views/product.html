@@ -1,0 +1,21 @@
+<div class="row" data-ng-controller="ProductController">
+  <div class="col-md-11">
+  <div class="form-group">
+    <input type="text" class="form-control" id="productsearch" placeholder="Search product" data-ng-model="productsearch" />
+  </div>
+  <table class="table table-striped table-hover">
+    <tbody>
+      <tr>
+        <th>Title</th>
+        <th>Short description</th>
+        <th>Price</th>
+      </tr>
+      <tr ng-repeat="product in products | filter:productsearch">
+        <td>{{product.title}}</td>
+        <td>{{product.shortDescription}}</td>
+        <td>{{product.price}}</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</div>

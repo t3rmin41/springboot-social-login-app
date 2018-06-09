@@ -1,20 +1,12 @@
 package com.simple.social.security;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import javax.servlet.Filter;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.ResourceServerProperties;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.UserInfoTokenServices;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -22,57 +14,29 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.OAuth2ClientContext;
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
-import org.springframework.security.oauth2.client.filter.OAuth2ClientAuthenticationProcessingFilter;
 import org.springframework.security.oauth2.client.filter.OAuth2ClientContextFilter;
-import org.springframework.security.oauth2.client.resource.OAuth2ProtectedResourceDetails;
-import org.springframework.security.oauth2.client.token.grant.code.AuthorizationCodeResourceDetails;
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableOAuth2Client;
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.social.connect.ConnectionFactoryLocator;
-import org.springframework.social.connect.UsersConnectionRepository;
-import org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository;
-import org.springframework.social.connect.web.ProviderSignInController;
-import org.springframework.web.context.request.RequestContextListener;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.CompositeFilter;
-import org.springframework.social.connect.mem.InMemoryUsersConnectionRepository;
-import org.springframework.social.connect.support.ConnectionFactoryRegistry;
+import com.simple.social.filter.FacebookLoginFilter;
+import com.simple.social.filter.FacebookObtainTokenFilter;
+import com.simple.social.filter.GoogleLoginFilter;
+import com.simple.social.filter.GoogleObtainTokenFilter;
+import com.simple.social.filter.JWTAuthFilter;
+import com.simple.social.filter.JWTLoginFilter;
 
 @Configuration
-@EnableOAuth2Client
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-  @Value("${spring.google.client.clientId}")
-  private String clientId;
-  
-  @Value("${spring.google.client.clientSecret}")
-  private String clientSecret;
-  
-  @Value("${spring.google.client.accessTokenUri}")
-  private String accessTokenUri;
-
-  @Value("${spring.google.client.userAuthorizationUri}")
-  private String userAuthorizationUri;
-
-  @Value("${google.resource.redirectUri}")
-  private String redirectUri;
-  
   @Autowired
   private DataSource dataSource;
 
-  @Autowired
-  private OAuth2RestTemplate restTemplate;
-  
   @Bean
-  public RequestContextListener requestContextListener() {
-      return new RequestContextListener();
+  public RestTemplate restTemplate() {
+    return new RestTemplate();
   }
   
   @Bean
@@ -81,28 +45,37 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   }
 
   @Bean
+  public GoogleIdConfig googleIdConfig() {
+    return new GoogleIdConfig();
+  }
+  
+  @Bean
+  public FacebookConfig facebookConfig() {
+    return new FacebookConfig();
+  }
+
+  @Bean
   public GoogleLoginFilter googleLoginFilter() {
-    final GoogleLoginFilter googleLoginFilter = new GoogleLoginFilter("/googlelogin");
-    googleLoginFilter.setRestTemplate(restTemplate);
+    final GoogleLoginFilter googleLoginFilter = new GoogleLoginFilter("/google/login", googleIdConfig());
     return googleLoginFilter;
   }
   
   @Bean
-  public OAuth2ProtectedResourceDetails googleOpenId() {
-      AuthorizationCodeResourceDetails details = new AuthorizationCodeResourceDetails();
-      details.setClientId(clientId);
-      details.setClientSecret(clientSecret);
-      details.setAccessTokenUri(accessTokenUri);
-      details.setUserAuthorizationUri(userAuthorizationUri);
-      details.setScope(Arrays.asList("openid", "profile", "email"));
-      details.setPreEstablishedRedirectUri(redirectUri);
-      details.setUseCurrentUri(false);
-      return details;
+  public GoogleObtainTokenFilter obtainGoogleTokenFilter() {
+    final GoogleObtainTokenFilter googleObtainTokenFilter = new GoogleObtainTokenFilter("/google/obtaintoken", googleIdConfig());
+    return googleObtainTokenFilter;
   }
 
   @Bean
-  public OAuth2RestTemplate googleOpenIdTemplate(OAuth2ClientContext clientContext) {
-      return new OAuth2RestTemplate(googleOpenId(), clientContext);
+  public FacebookLoginFilter facebookLoginFilter() {
+    final FacebookLoginFilter facebookLoginFilter = new FacebookLoginFilter("/facebook/login", facebookConfig());
+    return facebookLoginFilter;
+  }
+
+  @Bean
+  public FacebookObtainTokenFilter obtainFacebookTokenFilter() {
+    final FacebookObtainTokenFilter facebookObtainTokenFilter = new FacebookObtainTokenFilter("/facebook/obtaintoken", facebookConfig());
+    return facebookObtainTokenFilter;
   }
 
   @Override
@@ -129,14 +102,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
       http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
       http
           .authorizeRequests()
-          .antMatchers("/login*","/signin/**","/signup/**").permitAll()
+          .antMatchers("/login*", "/signin/**", "/signup/**").permitAll()
           .anyRequest().authenticated()
         .and()
           .addFilterBefore(loginFilters(), UsernamePasswordAuthenticationFilter.class)
-          .addFilterBefore(new JWTAuthFilter(), UsernamePasswordAuthenticationFilter.class);
-      http
-      .addFilterAfter(new OAuth2ClientContextFilter(), AbstractPreAuthenticatedProcessingFilter.class)
-      .addFilterAfter(googleLoginFilter(), OAuth2ClientContextFilter.class);
+          .addFilterBefore(new JWTAuthFilter(), UsernamePasswordAuthenticationFilter.class)
+          .addFilterAfter(new OAuth2ClientContextFilter(), AbstractPreAuthenticatedProcessingFilter.class)
+          .addFilterAfter(googleLoginFilter(), OAuth2ClientContextFilter.class)
+          .addFilterAfter(obtainGoogleTokenFilter(), OAuth2ClientContextFilter.class)
+          .addFilterAfter(facebookLoginFilter(), OAuth2ClientContextFilter.class)
+          .addFilterAfter(obtainFacebookTokenFilter(), OAuth2ClientContextFilter.class)
+          ;
   }
 
   @Override

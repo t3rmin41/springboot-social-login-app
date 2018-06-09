@@ -6,6 +6,7 @@ buildscript {
         logbackVersion = '1.2.3'
         springCoreVersion = '4.3.9.RELEASE'
         springSecurityVersion = '5.0.2.RELEASE'
+        activeMqVersion = '5.7.0'
     }
     repositories {
         mavenCentral()
@@ -136,6 +137,15 @@ dependencies {
     compile("javax.servlet:jstl:1.2")
     compile("org.apache.tomcat.embed:tomcat-embed-jasper:9.0.6")
 
+    //Apache Camel dependencies
+    //compile("org.apache.camel:camel-spring-boot:${camelVersion}") {
+    //    exclude group: 'org.jboss'
+    //}
+    //compile("org.apache.camel:camel-servlet:${camelVersion}")
+    //compile("org.apache.camel:camel-spring-javaconfig:${camelVersion}")
+    //compile("org.apache.camel:camel-test-spring:${camelVersion}")
+    //compile("org.apache.camel:camel-restlet:${camelVersion}")
+
     //Social
     compile("org.springframework.social:spring-social-core:1.1.4.RELEASE")
     compile("org.springframework.social:spring-social-config:1.1.4.RELEASE")
@@ -144,6 +154,9 @@ dependencies {
 
     //RSA verifier
     compile("com.auth0:jwks-rsa:0.3.0")
+    
+    //ActiveMQ
+    compile("org.springframework.boot:spring-boot-starter-activemq:${springBootVersion}")
 
     //Misc
     //compile("cglib:cglib:3.1")

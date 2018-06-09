@@ -1,4 +1,4 @@
-package com.simple.social.security;
+package com.simple.social.service;
 
 import java.util.Collection;
 import java.util.Date;
@@ -7,17 +7,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.assertj.core.util.Arrays;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
 import org.springframework.stereotype.Service;
-import com.simple.social.repository.UserRepository;
+import com.simple.social.util.security.UserNotFoundException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -26,21 +19,20 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Service
 public class TokenAuthenticationService {
 
-  private static long EXPIRATIONTIME = 86400_000; // 1 day
   private static String SECRET = "ThisIsASecret";
   private static String TOKEN_PREFIX = "Bearer";
+  private static String TOKEN_SEPARATOR = " ";
   private static String HEADER_STRING = "Authorization";
 
-  public void addAuthentication(HttpServletResponse res, String email, Collection<? extends GrantedAuthority> authorities) {
+  public void addAuthentication(HttpServletResponse res, String email, Collection<? extends GrantedAuthority> authorities, Date expirationDate) {
     Claims claims = Jwts.claims().setSubject(email);
     claims.put("roles", authorities.stream().map(s -> s.toString()).collect(Collectors.toList()));
-    
     String JWT = Jwts.builder()
         .setClaims(claims)
-        .setExpiration(new Date(System.currentTimeMillis() + EXPIRATIONTIME))
+        .setExpiration(expirationDate)
         .signWith(SignatureAlgorithm.HS512, SECRET)
         .compact();
-    res.addHeader(HEADER_STRING, TOKEN_PREFIX + " " + JWT);
+    res.addHeader(HEADER_STRING, TOKEN_PREFIX + TOKEN_SEPARATOR + JWT);
   }
 
   public String getAuthenticatedUsername(HttpServletRequest request)  throws UserNotFoundException {
@@ -50,7 +42,7 @@ public class TokenAuthenticationService {
       // parse the token.
       email = Jwts.parser()
           .setSigningKey(SECRET)
-          .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
+          .parseClaimsJws(token.replace(TOKEN_PREFIX + TOKEN_SEPARATOR, ""))
           .getBody()
           .getSubject();
     }
@@ -66,7 +58,7 @@ public class TokenAuthenticationService {
     String token = request.getHeader(HEADER_STRING);
     Jws<Claims> claims = Jwts.parser()
         .setSigningKey(SECRET)
-        .parseClaimsJws(token.replace(TOKEN_PREFIX, ""));
+        .parseClaimsJws(token.replace(TOKEN_PREFIX + TOKEN_SEPARATOR, ""));
     List<String> rolesAsString = (List<String>) claims.getBody().get("roles");
     rolesAsString.stream().forEach(rS -> {
       roles.add(new SimpleGrantedAuthority(rS));

@@ -16,17 +16,15 @@
             templateUrl: 'app/views/login.html',
             controller: 'LoginController'
         })
-        .when('/googlelogin', {
-            redirectTo : '/'
-        })
         .otherwise({
           redirectTo : '/login'
         });
-      } ]).config([ '$httpProvider', function($httpProvider) {
+      } ])
+      .config([ '$httpProvider', function($httpProvider) {
         $httpProvider.interceptors.push('TokenAuthInterceptor');
-        $httpProvider.interceptors.push('GoogleLoginInterceptor');
         //$httpProvider.interceptors.push('HttpErrorInterceptor');
-      } ]).factory('TokenAuthInterceptor', function($cookies) {
+      } ])
+      .factory('TokenAuthInterceptor', function($cookies) {
           return {
             request : function(config) {
               var authToken = $cookies.get('token');
@@ -37,15 +35,6 @@
             }
           };
     })
-    .factory('GoogleLoginInterceptor', function($rootScope, $q, $log, $location){
-      return {
-        response: function(response) {
-          console.log(response);
-          return response;
-        }
-      };
-    })
-    /**/
     /*
     .factory('HttpErrorInterceptor', function($rootScope, $q, $log, $location){
        return {
