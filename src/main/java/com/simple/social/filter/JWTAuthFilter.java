@@ -5,13 +5,18 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.inject.Inject;
+import javax.jms.Message;
 import javax.servlet.FilterChain;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.catalina.core.ApplicationContextFacade;
 import org.springframework.http.HttpStatus;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,6 +32,10 @@ import io.jsonwebtoken.SignatureException;
 
 public class JWTAuthFilter extends GenericFilterBean {
 
+  public JWTAuthFilter() {
+    setServletContext(ApplicationContextProvider.getApplicationContext().getBean(ServletContext.class));
+  }
+  
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
   throws IOException, ServletException {
@@ -38,9 +47,9 @@ public class JWTAuthFilter extends GenericFilterBean {
       SecurityContextHolder.getContext().setAuthentication(authentication);
       chain.doFilter(request, response);
     } catch (SignatureException | ExpiredJwtException | IllegalArgumentException | UserNotFoundException e) {
-      ((HttpServletResponse) response).setStatus(HttpStatus.FORBIDDEN.value());
-      ((HttpServletResponse) response).setContentType("application/json;charset=UTF-8");
-      response.getWriter().write(convertExceptionToJson(e, (HttpServletRequest)request));
+        ((HttpServletResponse) response).setStatus(HttpStatus.FORBIDDEN.value());
+        ((HttpServletResponse) response).setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(convertExceptionToJson(e, (HttpServletRequest)request));
     }
   }
   
