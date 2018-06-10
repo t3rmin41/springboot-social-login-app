@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 import javax.servlet.FilterChain;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,6 +27,7 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
   
   public JWTLoginFilter(String url, AuthenticationManager authManager) {
     super(new AntPathRequestMatcher(url));
+    setServletContext(ApplicationContextProvider.getApplicationContext().getBean(ServletContext.class));
     setAuthenticationManager(authManager);
   }
 

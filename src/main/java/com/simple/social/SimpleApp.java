@@ -16,7 +16,7 @@ import com.simple.social.config.MvcConfig;
 import com.simple.social.security.SecurityConfig;
 
 @SpringBootApplication
-@Import({ApplicationConfig.class, JpaConfig.class, MvcConfig.class, SecurityConfig.class,  ActiveMqConfig.class})
+@Import({ApplicationConfig.class, JpaConfig.class, MvcConfig.class, ActiveMqConfig.class, SecurityConfig.class})
 public class SimpleApp { // extends SpringBootServletInitializer {
 
   private static Logger log = LoggerFactory.getLogger(SimpleApp.class);
