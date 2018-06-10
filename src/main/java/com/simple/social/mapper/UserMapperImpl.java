@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.simple.social.domain.RoleBean;
@@ -23,10 +23,10 @@ import com.simple.social.repository.UserRepository;
 @Service
 public class UserMapperImpl implements UserMapper, BeanValidator {
 
-  @Autowired
+  @Inject
   private UserRepository userRepo;
 
-  @Autowired
+  @Inject
   private PasswordEncoder passwordEncoder;
   
   @Override
