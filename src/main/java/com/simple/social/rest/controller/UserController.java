@@ -5,8 +5,8 @@ import java.security.Principal;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,10 +26,10 @@ public class UserController {
 
   private List<String> allowedRoles = new LinkedList<String>(Arrays.asList(new String[]{"ROLE_ADMIN"}));
   
-  @Autowired
+  @Inject
   private UserService users;
 
-  @Autowired
+  @Inject
   private RequestValidator requestValidator;
   
   @RequestMapping(value = "/login/success", method = RequestMethod.POST)

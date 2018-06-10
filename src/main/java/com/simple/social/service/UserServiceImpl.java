@@ -2,7 +2,7 @@ package com.simple.social.service;
 
 import java.util.List;
 import java.util.Set;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.stereotype.Service;
 import com.simple.social.domain.UserBean;
 import com.simple.social.enums.UserType;
@@ -11,7 +11,7 @@ import com.simple.social.mapper.UserMapper;
 @Service
 public class UserServiceImpl implements UserService {
 
-  @Autowired
+  @Inject
   private UserMapper userMapper;
 
   @Override

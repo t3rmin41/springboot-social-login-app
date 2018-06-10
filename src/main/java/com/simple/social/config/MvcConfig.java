@@ -13,11 +13,6 @@ import org.springframework.web.servlet.view.JstlView;
 @Configuration
 public class MvcConfig implements WebMvcConfigurer {
 
-  @Override
-  public void addResourceHandlers(ResourceHandlerRegistry registry) {
-    registry.addResourceHandler("/resources/**", "/app/**", "/googlelogin**").addResourceLocations("/static/", "/app/", "/app/index.html");
-  }
-
   @Bean
   public InternalResourceViewResolver viewResolver() {
     InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
@@ -25,6 +20,11 @@ public class MvcConfig implements WebMvcConfigurer {
     viewResolver.setPrefix("/app/");
     viewResolver.setSuffix(".html");
     return viewResolver;
+  }
+  
+  @Override
+  public void addResourceHandlers(ResourceHandlerRegistry registry) {
+    registry.addResourceHandler("/resources/**", "/app/**", "/googlelogin**").addResourceLocations("/static/", "/app/", "/app/index.html");
   }
 
   @Override
