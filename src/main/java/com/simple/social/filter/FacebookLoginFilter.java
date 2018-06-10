@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
+import javax.inject.Inject;
 import javax.jms.Message;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -13,7 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.UserInfoTokenServices;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -52,13 +52,13 @@ public class FacebookLoginFilter extends AbstractAuthenticationProcessingFilter 
   private static UserInfoTokenServices userInfoTokenService;
   private static AuthorizationCodeAccessTokenProvider accessTokenProvider = new AuthorizationCodeAccessTokenProvider();
   
-  @Autowired
+  @Inject
   private RestTemplate restTemplate;
 
-  @Autowired
+  @Inject
   private UserService userService;
 
-  @Autowired
+  @Inject
   private JmsTemplate jmsTemplate;
   
   private final ReentrantLock lock = new ReentrantLock();

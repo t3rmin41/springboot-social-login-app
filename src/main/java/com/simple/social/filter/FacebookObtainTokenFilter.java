@@ -2,12 +2,12 @@ package com.simple.social.filter;
 
 import java.io.IOException;
 import java.util.concurrent.locks.ReentrantLock;
+import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.UserInfoTokenServices;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -35,7 +35,7 @@ public class FacebookObtainTokenFilter extends AbstractAuthenticationProcessingF
 
   private static final String FACEBOOK_FIELDS = "?fields=id,email,first_name,last_name,picture";
 
-  @Autowired
+  @Inject
   private SessionQueueSender sessionQueueSender;
   
   private final ReentrantLock lock = new ReentrantLock();
