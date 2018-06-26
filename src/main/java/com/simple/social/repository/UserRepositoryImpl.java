@@ -3,6 +3,7 @@ package com.simple.social.repository;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -12,7 +13,6 @@ import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 import com.simple.social.enums.UserType;
@@ -27,7 +27,7 @@ public class UserRepositoryImpl implements UserRepository {
   @PersistenceContext
   private EntityManager em;
   
-  @Autowired
+  @Inject
   private PasswordEncoder passwordEncoder;
   
   @Override

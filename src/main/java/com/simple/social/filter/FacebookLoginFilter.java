@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
+import javax.inject.Inject;
 import javax.jms.Message;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -13,7 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.UserInfoTokenServices;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -52,13 +52,13 @@ public class FacebookLoginFilter extends AbstractAuthenticationProcessingFilter 
   private static UserInfoTokenServices userInfoTokenService;
   private static AuthorizationCodeAccessTokenProvider accessTokenProvider = new AuthorizationCodeAccessTokenProvider();
   
-  @Autowired
+  @Inject
   private RestTemplate restTemplate;
 
-  @Autowired
+  @Inject
   private UserService userService;
 
-  @Autowired
+  @Inject
   private JmsTemplate jmsTemplate;
   
   private final ReentrantLock lock = new ReentrantLock();
@@ -82,47 +82,44 @@ public class FacebookLoginFilter extends AbstractAuthenticationProcessingFilter 
     OAuth2AccessToken accessToken = null;
     this.lock.lock();
     try {
-      String code = request.getParameter("code");
-      if (null == this.accessToken || request.getSession().getId() != this.accessToken.getAdditionalInformation().get("sessionId")) {
-        AccessTokenRequest accessTokenRequest = new DefaultAccessTokenRequest();
-        accessTokenRequest.setAuthorizationCode(code);
-        accessTokenRequest.setCurrentUri(facebookConfig.getResourceDetails().getPreEstablishedRedirectUri());
-        accessToken = accessTokenProvider.obtainAccessToken(facebookConfig.getResourceDetails(), accessTokenRequest);
-        accessToken.getAdditionalInformation().put("sessionId", request.getSession().getId());
+      try {
+        String code = request.getParameter("code");
+        if (null == this.accessToken || request.getSession().getId() != this.accessToken.getAdditionalInformation().get("sessionId")) {
+          AccessTokenRequest accessTokenRequest = new DefaultAccessTokenRequest();
+          accessTokenRequest.setAuthorizationCode(code);
+          accessTokenRequest.setCurrentUri(facebookConfig.getResourceDetails().getPreEstablishedRedirectUri());
+          accessToken = accessTokenProvider.obtainAccessToken(facebookConfig.getResourceDetails(), accessTokenRequest);
+          accessToken.getAdditionalInformation().put("sessionId", request.getSession().getId());
+        }
+      } catch (OAuth2Exception | UserRedirectRequiredException e) {
+        setFacebookLoginRequiredHeader(response);
+        throw new BadCredentialsException("Could not obtain access token", e);
       }
-    } catch (OAuth2Exception | UserRedirectRequiredException e) {
-      setFacebookLoginRequiredHeader(response);
-      throw new BadCredentialsException("Could not obtain access token", e);
-    } finally {
-      this.lock.unlock();
-    }
-    this.lock.lock();
-    try {
-      if (null == this.accessToken || request.getSession().getId() != this.accessToken.getAdditionalInformation().get("sessionId")) {
-        this.accessToken = accessToken;
-        userInfoTokenService.loadAuthentication(accessToken.getValue());
+      try {
+        if (null == this.accessToken || request.getSession().getId() != this.accessToken.getAdditionalInformation().get("sessionId")) {
+          this.accessToken = accessToken;
+          userInfoTokenService.loadAuthentication(accessToken.getValue());
+        }
+      } catch (final OAuth2Exception e) {
+        setFacebookLoginRequiredHeader(response);
+        response.sendRedirect("/");
+        throw new BadCredentialsException("Could not obtain access token", e);
+      } catch (final  UserRedirectRequiredException e) {
+        setFacebookLoginRequiredHeader(response);
       }
-    } catch (final OAuth2Exception e) {
-      setFacebookLoginRequiredHeader(response);
-      response.sendRedirect("/");
-      throw new BadCredentialsException("Could not obtain access token", e);
-    } catch (final  UserRedirectRequiredException e) {
-      setFacebookLoginRequiredHeader(response);
+      try {
+        String json = restTemplate.getForObject(facebookConfig.getResourceProperties().getUserInfoUri()+FACEBOOK_FIELDS+"&access_token="+this.accessToken.getValue(), String.class);
+        final Map<String, String> authInfo = new ObjectMapper().readValue(json, Map.class);
+        final FacebookIdUserDetails fbUser = new FacebookIdUserDetails(authInfo, this.accessToken);
+        return new UsernamePasswordAuthenticationToken(fbUser, null, fbUser.getAuthorities());
+      } catch (final Exception e) {
+        setFacebookLoginRequiredHeader(response);
+        throw new BadCredentialsException("Could not obtain user details from token", e);
+      }
     } finally {
       this.lock.unlock();
     }
-    this.lock.lock();
-    try {
-      String json = restTemplate.getForObject(facebookConfig.getResourceProperties().getUserInfoUri()+FACEBOOK_FIELDS+"&access_token="+this.accessToken.getValue(), String.class);
-      final Map<String, String> authInfo = new ObjectMapper().readValue(json, Map.class);
-      final FacebookIdUserDetails fbUser = new FacebookIdUserDetails(authInfo, this.accessToken);
-      return new UsernamePasswordAuthenticationToken(fbUser, null, fbUser.getAuthorities());
-    } catch (final Exception e) {
-      setFacebookLoginRequiredHeader(response);
-      throw new BadCredentialsException("Could not obtain user details from token", e);
-    } finally {
-      this.lock.unlock();
-    }
+
   }
 
   @Override
