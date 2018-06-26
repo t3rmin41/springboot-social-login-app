@@ -103,47 +103,43 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
     OAuth2AccessToken accessToken = null;
     this.lock.lock();
     try {
-      String code = request.getParameter("code");
-      if (null == this.accessToken || request.getSession().getId() != this.accessToken.getAdditionalInformation().get("sessionId")) {
-          AccessTokenRequest accessTokenRequest = new DefaultAccessTokenRequest();
-          accessTokenRequest.setAuthorizationCode(code);
-          accessTokenRequest.setCurrentUri(config.getResourceDetails().getPreEstablishedRedirectUri());
-          accessToken = accessTokenProvider.obtainAccessToken(config.getResourceDetails(), accessTokenRequest);
-          accessToken.getAdditionalInformation().put("sessionId", request.getSession().getId());
+      try {
+        String code = request.getParameter("code");
+        if (null == this.accessToken || request.getSession().getId() != this.accessToken.getAdditionalInformation().get("sessionId")) {
+            AccessTokenRequest accessTokenRequest = new DefaultAccessTokenRequest();
+            accessTokenRequest.setAuthorizationCode(code);
+            accessTokenRequest.setCurrentUri(config.getResourceDetails().getPreEstablishedRedirectUri());
+            accessToken = accessTokenProvider.obtainAccessToken(config.getResourceDetails(), accessTokenRequest);
+            accessToken.getAdditionalInformation().put("sessionId", request.getSession().getId());
+        }
+      } catch (OAuth2Exception | UserRedirectRequiredException e) {
+        setGoogleLoginRequiredHeader(response);
+        throw new BadCredentialsException("Could not obtain access token", e);
       }
-    } catch (OAuth2Exception | UserRedirectRequiredException e) {
-      setGoogleLoginRequiredHeader(response);
-      throw new BadCredentialsException("Could not obtain access token", e);
-    } finally {
-      this.lock.unlock();
-    }
-    this.lock.lock();
-    try {
-      if (null == this.accessToken || request.getSession().getId() != this.accessToken.getAdditionalInformation().get("sessionId")) {
-          this.accessToken = accessToken;
-          userInfoTokenService.loadAuthentication(accessToken.getValue());
+      try {
+        if (null == this.accessToken || request.getSession().getId() != this.accessToken.getAdditionalInformation().get("sessionId")) {
+            this.accessToken = accessToken;
+            userInfoTokenService.loadAuthentication(accessToken.getValue());
+        }
+      } catch (final OAuth2Exception e) {
+        setGoogleLoginRequiredHeader(response);
+        response.sendRedirect("/");
+        throw new BadCredentialsException("Could not obtain access token", e);
+      } catch (final  UserRedirectRequiredException e) {
+        setGoogleLoginRequiredHeader(response);
       }
-    } catch (final OAuth2Exception e) {
-      setGoogleLoginRequiredHeader(response);
-      response.sendRedirect("/");
-      throw new BadCredentialsException("Could not obtain access token", e);
-    } catch (final  UserRedirectRequiredException e) {
-      setGoogleLoginRequiredHeader(response);
-    } finally {
-      this.lock.unlock();
-    }
-    this.lock.lock();
-    try {
-        final String idToken = this.accessToken.getAdditionalInformation().get("id_token").toString();
-        String kid = JwtHelper.headers(idToken).get("kid");
-        final Jwt tokenDecoded = JwtHelper.decodeAndVerify(idToken, verifier(kid));
-        final Map<String, String> authInfo = new ObjectMapper().readValue(tokenDecoded.getClaims(), Map.class);
-        verifyClaims(authInfo);
-        final GoogleIdUserDetails user = new GoogleIdUserDetails(authInfo, this.accessToken);
-        return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-    } catch (final Exception e) {
-      setGoogleLoginRequiredHeader(response);
-      throw new BadCredentialsException("Could not obtain user details from token", e);
+      try {
+          final String idToken = this.accessToken.getAdditionalInformation().get("id_token").toString();
+          String kid = JwtHelper.headers(idToken).get("kid");
+          final Jwt tokenDecoded = JwtHelper.decodeAndVerify(idToken, verifier(kid));
+          final Map<String, String> authInfo = new ObjectMapper().readValue(tokenDecoded.getClaims(), Map.class);
+          verifyClaims(authInfo);
+          final GoogleIdUserDetails user = new GoogleIdUserDetails(authInfo, this.accessToken);
+          return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+      } catch (final Exception e) {
+        setGoogleLoginRequiredHeader(response);
+        throw new BadCredentialsException("Could not obtain user details from token", e);
+      }
     } finally {
       this.lock.unlock();
     }
