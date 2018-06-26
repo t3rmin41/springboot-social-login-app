@@ -100,9 +100,9 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
   public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
   throws AuthenticationException, IOException, ServletException {
     //logger.info("GoogleLoginFilter : attemptAuthentication");
-    OAuth2AccessToken accessToken = null;
     this.lock.lock();
     try {
+      OAuth2AccessToken accessToken = null;
       try {
         String code = request.getParameter("code");
         if (null == this.accessToken || request.getSession().getId() != this.accessToken.getAdditionalInformation().get("sessionId")) {
