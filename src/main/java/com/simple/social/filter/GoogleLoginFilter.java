@@ -65,7 +65,12 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
   private static AuthorizationCodeAccessTokenProvider accessTokenProvider = new AuthorizationCodeAccessTokenProvider();
   
   private static final String GOOGLE_REQUEST = "?alt=json";
-  
+
+  //probably doesn't make sense having lock here if GoogleLoginFilter is created as bean (hence, singleton -> one object instance)
+  //because then accessToken can be visible by other threads while thread A (session A) obtains one token (attemptAuthentication), 
+  //thread B (session B) might obtain another token (also attemptAuthentication)
+  //and then B might enter successfulAuthentication() method before A which will result
+  //in A thread having accessToken written by B thread 
   private final ReentrantLock lock = new ReentrantLock();
   
   @Inject

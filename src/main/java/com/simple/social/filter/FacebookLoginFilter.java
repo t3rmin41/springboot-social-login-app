@@ -60,7 +60,7 @@ public class FacebookLoginFilter extends AbstractAuthenticationProcessingFilter 
 
   @Inject
   private JmsTemplate jmsTemplate;
-  
+
   private final ReentrantLock lock = new ReentrantLock();
 
   private OAuth2AccessToken accessToken = null;
