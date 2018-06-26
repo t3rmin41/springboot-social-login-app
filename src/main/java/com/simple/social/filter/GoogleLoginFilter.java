@@ -70,7 +70,9 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
   //because then accessToken can be visible by other threads while thread A (session A) obtains one token (attemptAuthentication), 
   //thread B (session B) might obtain another token (also attemptAuthentication)
   //and then B might enter successfulAuthentication() method before A which will result
-  //in A thread having accessToken written by B thread 
+  //in A thread having accessToken written by B thread after B finishes successfulAuthentication() 
+  //and A enters successfulAuthentication()
+  // Maybe need to try ThreadLocal
   private final ReentrantLock lock = new ReentrantLock();
   
   @Inject
