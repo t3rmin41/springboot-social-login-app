@@ -7,6 +7,7 @@ import javax.servlet.Filter;
 import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -18,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.filter.OAuth2ClientContextFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.CompositeFilter;
 import com.simple.social.filter.FacebookLoginFilter;
@@ -34,6 +36,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Inject
   private DataSource dataSource;
 
+  @Bean
+  public HttpSessionEventPublisher httpSessionEventPublisher() {
+      return new HttpSessionEventPublisher();
+  }
+  
   @Bean
   public RestTemplate restTemplate() {
     return new RestTemplate();
@@ -55,24 +62,28 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   }
 
   @Bean
+  @Scope("session")
   public GoogleLoginFilter googleLoginFilter() {
     final GoogleLoginFilter googleLoginFilter = new GoogleLoginFilter("/google/login", googleIdConfig());
     return googleLoginFilter;
   }
   
   @Bean
+  @Scope("session")
   public GoogleObtainTokenFilter obtainGoogleTokenFilter() {
     final GoogleObtainTokenFilter googleObtainTokenFilter = new GoogleObtainTokenFilter("/google/obtaintoken", googleIdConfig());
     return googleObtainTokenFilter;
   }
 
   @Bean
+  @Scope("session")
   public FacebookLoginFilter facebookLoginFilter() {
     final FacebookLoginFilter facebookLoginFilter = new FacebookLoginFilter("/facebook/login", facebookConfig());
     return facebookLoginFilter;
   }
 
   @Bean
+  @Scope("session")
   public FacebookObtainTokenFilter obtainFacebookTokenFilter() {
     final FacebookObtainTokenFilter facebookObtainTokenFilter = new FacebookObtainTokenFilter("/facebook/obtaintoken", facebookConfig());
     return facebookObtainTokenFilter;
@@ -99,7 +110,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Override
   protected void configure(HttpSecurity http) throws Exception {
       http.csrf().disable();
-      http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+      http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
       http
           .authorizeRequests()
           .antMatchers("/login*", "/signin/**", "/signup/**").permitAll()
