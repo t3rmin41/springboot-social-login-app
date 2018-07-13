@@ -8,6 +8,7 @@ import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -17,10 +18,13 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.filter.OAuth2ClientContextFilter;
+import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.filter.CompositeFilter;
 import com.simple.social.filter.FacebookLoginFilter;
 import com.simple.social.filter.FacebookObtainTokenFilter;
@@ -39,6 +43,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Bean
   public HttpSessionEventPublisher httpSessionEventPublisher() {
       return new HttpSessionEventPublisher();
+  }
+      
+  public RequestContextListener requestContextListener() {
+    return new RequestContextListener();
+  }
+  
+  @Bean
+  @Scope(value="session", proxyMode = ScopedProxyMode.TARGET_CLASS)
+  public OAuth2AccessToken accessToken() {
+    return new DefaultOAuth2AccessToken("");
   }
   
   @Bean

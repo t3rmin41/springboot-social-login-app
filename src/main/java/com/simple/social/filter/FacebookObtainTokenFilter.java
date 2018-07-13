@@ -38,9 +38,10 @@ public class FacebookObtainTokenFilter extends AbstractAuthenticationProcessingF
   @Inject
   private SessionQueueSender sessionQueueSender;
   
-  private final ReentrantLock lock = new ReentrantLock();
+  //private final ReentrantLock lock = new ReentrantLock();
   
-  private OAuth2AccessToken accessToken = null;
+  @Inject
+  private OAuth2AccessToken accessToken; // = null;
 
   public FacebookObtainTokenFilter(String defaultFilterProcessesUrl, FacebookConfig config) {
     super(defaultFilterProcessesUrl);
@@ -54,13 +55,13 @@ public class FacebookObtainTokenFilter extends AbstractAuthenticationProcessingF
   public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
   throws AuthenticationException, IOException, ServletException {
     //logger.info("FacebookObtainTokenFilter : attemptAuthentication");
-    OAuth2AccessToken accessToken = null;
-    this.lock.lock();
+//    this.lock.lock();
     //trying to obtain token redirects to Facebook login form via UserRedirectRequiredException
     try {
+//      OAuth2AccessToken accessToken = null;
       String code = request.getParameter("code");
       sessionQueueSender.sendMessageToQueue(request.getSession().getId());
-      if (null == this.accessToken || request.getSession().getId() != this.accessToken.getAdditionalInformation().get("sessionId")) {
+      if (null == this.accessToken || request.getSession().getId() != accessToken.getAdditionalInformation().get("sessionId")) {
         AccessTokenRequest accessTokenRequest = new DefaultAccessTokenRequest();
         accessTokenRequest.setAuthorizationCode(code);
         accessTokenRequest.setCurrentUri(facebookConfig.getResourceDetails().getPreEstablishedRedirectUri());
@@ -69,9 +70,10 @@ public class FacebookObtainTokenFilter extends AbstractAuthenticationProcessingF
       }
     } catch (OAuth2Exception e) {
       throw new BadCredentialsException("Could not obtain access token", e);
-    } finally {
-      this.lock.unlock();
-    }
+    } 
+//    finally {
+//      this.lock.unlock();
+//    }
     //return nullable UsernamePasswordAuthenticationToken as ObtainToken filter is needed only for UserRedirectRequiredException
     return new UsernamePasswordAuthenticationToken(new FacebookIdUserDetails(null, null), null, null);
   }

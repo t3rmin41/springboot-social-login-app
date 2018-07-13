@@ -52,9 +52,10 @@ public class GoogleObtainTokenFilter extends AbstractAuthenticationProcessingFil
   @Inject
   private SessionQueueSender sessionQueueSender;
   
-  private final ReentrantLock lock = new ReentrantLock();
+  //private final ReentrantLock lock = new ReentrantLock();
   
-  private OAuth2AccessToken accessToken = null;
+  @Inject
+  private OAuth2AccessToken accessToken; // = null;
 
   public GoogleObtainTokenFilter(String url, GoogleIdConfig googleIdConfig) {
     super(new AntPathRequestMatcher(url));
@@ -69,12 +70,12 @@ public class GoogleObtainTokenFilter extends AbstractAuthenticationProcessingFil
   throws AuthenticationException, IOException, ServletException {
     //logger.info("GoogleObtainTokenFilter : attemptAuthentication");
     //trying to obtain token redirects to Google login form via UserRedirectRequiredException
-    OAuth2AccessToken accessToken = null;
-    this.lock.lock();
+//    this.lock.lock();
     try {
+//      OAuth2AccessToken accessToken = null;
       sessionQueueSender.sendMessageToQueue(request.getSession().getId());
       String code = request.getParameter("code");
-        if (null == this.accessToken || request.getSession().getId() != this.accessToken.getAdditionalInformation().get("sessionId")) {
+        if (null == accessToken || request.getSession().getId() != accessToken.getAdditionalInformation().get("sessionId")) {
           AccessTokenRequest accessTokenRequest = new DefaultAccessTokenRequest();
           accessTokenRequest.setAuthorizationCode(code);
           accessTokenRequest.setCurrentUri(config.getResourceDetails().getPreEstablishedRedirectUri());
@@ -83,9 +84,10 @@ public class GoogleObtainTokenFilter extends AbstractAuthenticationProcessingFil
       }
     } catch (final OAuth2Exception e) {
         throw new BadCredentialsException("Could not obtain access token", e);
-    } finally {
-      this.lock.unlock();
-    }
+    } 
+//    finally {
+//      this.lock.unlock();
+//    }
     //return nullable UsernamePasswordAuthenticationToken as ObtainToken filter is needed only for UserRedirectRequiredException
     return new UsernamePasswordAuthenticationToken(new GoogleIdUserDetails(null, null), null, null);
   }
