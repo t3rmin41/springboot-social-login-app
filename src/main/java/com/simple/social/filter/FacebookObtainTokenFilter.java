@@ -54,10 +54,10 @@ public class FacebookObtainTokenFilter extends AbstractAuthenticationProcessingF
   public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
   throws AuthenticationException, IOException, ServletException {
     //logger.info("FacebookObtainTokenFilter : attemptAuthentication");
-    OAuth2AccessToken accessToken = null;
     this.lock.lock();
     //trying to obtain token redirects to Facebook login form via UserRedirectRequiredException
     try {
+      OAuth2AccessToken accessToken = null;
       String code = request.getParameter("code");
       sessionQueueSender.sendMessageToQueue(request.getSession().getId());
       if (null == this.accessToken || request.getSession().getId() != this.accessToken.getAdditionalInformation().get("sessionId")) {
