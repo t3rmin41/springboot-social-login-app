@@ -76,28 +76,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   }
 
   @Bean
-  @Scope("session")
   public GoogleLoginFilter googleLoginFilter() {
     final GoogleLoginFilter googleLoginFilter = new GoogleLoginFilter("/google/login", googleIdConfig());
     return googleLoginFilter;
   }
   
   @Bean
-  @Scope("session")
   public GoogleObtainTokenFilter obtainGoogleTokenFilter() {
     final GoogleObtainTokenFilter googleObtainTokenFilter = new GoogleObtainTokenFilter("/google/obtaintoken", googleIdConfig());
     return googleObtainTokenFilter;
   }
 
   @Bean
-  @Scope("session")
   public FacebookLoginFilter facebookLoginFilter() {
     final FacebookLoginFilter facebookLoginFilter = new FacebookLoginFilter("/facebook/login", facebookConfig());
     return facebookLoginFilter;
   }
 
   @Bean
-  @Scope("session")
   public FacebookObtainTokenFilter obtainFacebookTokenFilter() {
     final FacebookObtainTokenFilter facebookObtainTokenFilter = new FacebookObtainTokenFilter("/facebook/obtaintoken", facebookConfig());
     return facebookObtainTokenFilter;
