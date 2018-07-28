@@ -37,11 +37,6 @@ public class FacebookObtainTokenFilter extends AbstractAuthenticationProcessingF
 
   @Inject
   private SessionQueueSender sessionQueueSender;
-  
-  //private final ReentrantLock lock = new ReentrantLock();
-  
-  @Inject
-  private OAuth2AccessToken accessToken; // = null;
 
   public FacebookObtainTokenFilter(String defaultFilterProcessesUrl, FacebookConfig config) {
     super(defaultFilterProcessesUrl);
@@ -55,25 +50,22 @@ public class FacebookObtainTokenFilter extends AbstractAuthenticationProcessingF
   public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
   throws AuthenticationException, IOException, ServletException {
     //logger.info("FacebookObtainTokenFilter : attemptAuthentication");
-//    this.lock.lock();
     //trying to obtain token redirects to Facebook login form via UserRedirectRequiredException
     try {
-//      OAuth2AccessToken accessToken = null;
+      OAuth2AccessToken fbAccessToken = null;
       String code = request.getParameter("code");
-      sessionQueueSender.sendMessageToQueue(request.getSession().getId());
-      if (null == this.accessToken || request.getSession().getId() != accessToken.getAdditionalInformation().get("sessionId")) {
+      fbAccessToken = (OAuth2AccessToken) request.getSession().getAttribute("fbAccessToken");
+      if (null == fbAccessToken) {
+        sessionQueueSender.sendMessageToQueue(request.getSession().getId());
         AccessTokenRequest accessTokenRequest = new DefaultAccessTokenRequest();
         accessTokenRequest.setAuthorizationCode(code);
         accessTokenRequest.setCurrentUri(facebookConfig.getResourceDetails().getPreEstablishedRedirectUri());
-        accessToken = accessTokenProvider.obtainAccessToken(facebookConfig.getResourceDetails(), accessTokenRequest);
-        accessToken.getAdditionalInformation().put("sessionId", request.getSession().getId());
+        fbAccessToken = accessTokenProvider.obtainAccessToken(facebookConfig.getResourceDetails(), accessTokenRequest);
+        request.getSession().setAttribute("fbAccessToken", fbAccessToken);
       }
     } catch (OAuth2Exception e) {
       throw new BadCredentialsException("Could not obtain access token", e);
     } 
-//    finally {
-//      this.lock.unlock();
-//    }
     //return nullable UsernamePasswordAuthenticationToken as ObtainToken filter is needed only for UserRedirectRequiredException
     return new UsernamePasswordAuthenticationToken(new FacebookIdUserDetails(null, null), null, null);
   }
