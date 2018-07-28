@@ -55,9 +55,6 @@
       ctrl.getFacebookLoginSettings = function() {
         $scope.facebookLoginClicked = $cookies.get('facebookLoginClicked');
         $scope.authenticated = $cookies.get('authenticated');
-        //$scope.userLoggedOut = $cookies.get('userLoggedOut');
-        //if ($scope.googleLoginClicked != undefined && $scope.googleLoginClicked && ) {
-        //if ("true" == $scope.facebookLoginClicked && "true" !=  $scope.userLoggedOut) {
         if ("true" == $scope.facebookLoginClicked) {
           $scope.loginFacebookWithoutClick();
         }
@@ -67,9 +64,6 @@
         $scope.googleLoginClicked = $cookies.get('googleLoginClicked');
         $scope.facebookLoginClicked = $cookies.get('facebookLoginClicked');
         $scope.authenticated = $cookies.get('authenticated');
-        //$scope.userLoggedOut = $cookies.get('userLoggedOut');
-        //if ($scope.googleLoginClicked != undefined && $scope.googleLoginClicked && ) {
-        //if ("true" == $scope.googleLoginClicked && "true" !=  $scope.userLoggedOut) {
         if ("true" == $scope.googleLoginClicked) {
           $scope.loginGoogleWithoutClick();
         } else if ("true" != $scope.facebookLoginClicked || undefined == $scope.facebookLoginClicked) {
@@ -97,12 +91,9 @@
       var loginErrorCallback = function(data, status, headers) {
         var error = {};
         if (headers('GoogleLoginRequired') == "true") {
-          //$cookies.put('GoogleLoginRequired', true);
           window.location.href = "/google/obtaintoken";
-          //$scope.loginGoogle();
         } else if (headers('FacebookLoginRequired') == "true") {
           window.location.href = "/facebook/obtaintoken";
-          //$scope.loginFacebook();
         } else {
           error.message = data.message;
           $scope.error = error;
