@@ -149,8 +149,6 @@ dependencies {
     //Social
     compile("org.springframework.social:spring-social-core:1.1.4.RELEASE")
     compile("org.springframework.social:spring-social-config:1.1.4.RELEASE")
-    //compile("org.springframework.social:spring-social-facebook:2.0.2.RELEASE")
-    //compile("org.springframework.social:spring-social-google:1.0.0.RELEASE")
 
     //RSA verifier
     compile("com.auth0:jwks-rsa:0.3.0")
@@ -158,8 +156,9 @@ dependencies {
     //ActiveMQ
     compile("org.springframework.boot:spring-boot-starter-activemq:${springBootVersion}")
 
-    //Misc
-    //compile("cglib:cglib:3.1")
+    //Aspect J
+    compile("org.aspectj:aspectjrt:1.9.1")
+    compile("org.aspectj:aspectjweaver:1.9.1")
 
     // testing
     testCompile("junit:junit:4.12")

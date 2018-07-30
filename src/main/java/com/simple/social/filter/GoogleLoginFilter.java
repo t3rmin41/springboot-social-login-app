@@ -112,7 +112,7 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
         throw new BadCredentialsException("Could not obtain access token", e);
       }
       try {
-        if (null == googleAccessToken) {
+        if (null != googleAccessToken) {
             userInfoTokenService.loadAuthentication(googleAccessToken.getValue());
         }
       } catch (final OAuth2Exception e) {
