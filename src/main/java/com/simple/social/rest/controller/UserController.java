@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.simple.social.domain.RoleBean;
 import com.simple.social.domain.UserBean;
 import com.simple.social.enums.RoleType;
-import com.simple.social.service.RequestValidator;
+import com.simple.social.enums.UserType;
 import com.simple.social.service.UserService;
 
 @Controller
@@ -29,26 +29,16 @@ public class UserController {
   @Inject
   private UserService users;
 
-  @Inject
-  private RequestValidator requestValidator;
-  
   @RequestMapping(value = "/login/success", method = RequestMethod.POST)
   public @ResponseBody UserBean loginSuccessfull(HttpSession session, Principal principal) {
-    UserBean bean = users.getUserByEmail(principal.getName());
-    return bean;
+    return getUserBeanBySessionAndPrincipal(session, principal);
   }
   
   @RequestMapping(value = "/logout", method = RequestMethod.POST)
   public @ResponseBody UserBean logout(HttpSession session, Principal principal) {
-    UserBean bean = users.getUserByEmail(principal.getName());
-    return bean;
+    return getUserBeanBySessionAndPrincipal(session, principal);
   }
 
-  @RequestMapping(value = "/info", method = RequestMethod.GET)
-  public @ResponseBody Principal getUserInfo(Principal principal) {
-    return principal;
-  }
-  
   @RequestMapping(value = "/roles", method = RequestMethod.GET)
   public @ResponseBody List<RoleBean> getUserRoleMap() {
       List<RoleBean> roleList = new LinkedList<RoleBean>();
@@ -58,36 +48,48 @@ public class UserController {
       return roleList;
   }
 
+  @RequestMapping(value = "/info", method = RequestMethod.GET)
+  public @ResponseBody Principal getUserInfo(UsernamePasswordAuthenticationToken token, Principal principal) {
+    return principal;
+  }
+  
   @RequestMapping(value = "/all", method = RequestMethod.GET)
-  public @ResponseBody List<UserBean> getUsers(Principal principal, UsernamePasswordAuthenticationToken token) {
-    requestValidator.validateRequestAgainstUserRoles(token, allowedRoles, "GET /users/all");
+  public @ResponseBody List<UserBean> getUsers(UsernamePasswordAuthenticationToken token, Principal principal) {
     return users.getAllUsers();
   }
 
   @RequestMapping(value = "/save", method = RequestMethod.POST, consumes = APPLICATION_JSON_UTF8_VALUE)
-  public @ResponseBody UserBean saveUser(@RequestBody UserBean bean, UsernamePasswordAuthenticationToken token) {
-    requestValidator.validateRequestAgainstUserRoles(token, allowedRoles, "POST /users/save");
+  public @ResponseBody UserBean saveUser(UsernamePasswordAuthenticationToken token, @RequestBody UserBean bean) {
     return users.saveUser(bean);
   }
 
   @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-  public @ResponseBody UserBean getUserById(@PathVariable("id") Long id, UsernamePasswordAuthenticationToken token) {
+  public @ResponseBody UserBean getUserById(UsernamePasswordAuthenticationToken token, @PathVariable("id") Long id) {
     List<String> allowed = new LinkedList<String>();
     allowed.addAll(allowedRoles); allowed.add("ROLE_CUSTOMER"); allowed.add("ROLE_MANAGER");
-    requestValidator.validateRequestAgainstUserRoles(token, allowed, "GET /users/id");
     return users.getUserById(id);
   }
 
   @RequestMapping(value = "/update", method = RequestMethod.PUT, consumes = APPLICATION_JSON_UTF8_VALUE)
-  public @ResponseBody UserBean updateUser(@RequestBody UserBean bean, UsernamePasswordAuthenticationToken token) {
-    requestValidator.validateRequestAgainstUserRoles(token, allowedRoles, "PUT /users/update");
+  public @ResponseBody UserBean updateUser(UsernamePasswordAuthenticationToken token, @RequestBody UserBean bean) {
     return users.updateUser(bean);
   }
 
   @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
-  public @ResponseBody boolean deleteUser(@PathVariable("id") Long id, UsernamePasswordAuthenticationToken token) {
-    requestValidator.validateRequestAgainstUserRoles(token, allowedRoles, "DELETE /users/delete");
+  public @ResponseBody boolean deleteUser(UsernamePasswordAuthenticationToken token, @PathVariable("id") Long id) {
     return users.deleteUserById(id);
+  }
+  
+  private UserBean getUserBeanBySessionAndPrincipal(HttpSession session, Principal principal) {
+    UserType userType = UserType.APP;
+    if (null != session.getAttribute("googleAccessToken")) {
+      userType = UserType.GOOGLE;
+    } 
+    if (null != session.getAttribute("fbAccessToken")) {
+      userType = UserType.FB;
+    }
+    UserBean bean = users.getUserByEmailAndType(principal.getName(), userType);
+    return bean;
   }
   
 }

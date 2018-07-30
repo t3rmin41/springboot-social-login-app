@@ -92,7 +92,7 @@ public class FacebookLoginFilter extends AbstractAuthenticationProcessingFilter 
         throw new BadCredentialsException("Could not obtain access token", e);
       }
       try {
-        if (null == fbAccessToken) {
+        if (null != fbAccessToken) {
           userInfoTokenService.loadAuthentication(fbAccessToken.getValue());
         }
       } catch (final OAuth2Exception e) {
