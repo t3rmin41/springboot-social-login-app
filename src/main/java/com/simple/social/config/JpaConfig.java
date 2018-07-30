@@ -65,7 +65,7 @@ public class JpaConfig {
     return em;
   }
   
-  Properties additionalProperties() {
+  private Properties additionalProperties() {
     Properties properties = new Properties();
     properties.setProperty("hibernate.hbm2ddl.auto", "update");
     if ("prod".equals(activeProfile)) {
