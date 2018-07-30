@@ -12,6 +12,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.UserInfoTokenServices;
@@ -141,12 +142,17 @@ public class FacebookLoginFilter extends AbstractAuthenticationProcessingFilter 
     if (null != message) {
       res.sendRedirect("/");
     }
+    invalidateIrrelevantSessionAttributes(req.getSession());
   }
 
   private void setFacebookLoginRequiredHeader(HttpServletResponse response) {
     if (null == response.getHeader("FacebookLoginRequired") || !"true".equals(response.getHeader("FacebookLoginRequired"))) {
       response.addHeader("FacebookLoginRequired", "true");
     }
+  }
+  
+  private void invalidateIrrelevantSessionAttributes(HttpSession session) {
+    session.setAttribute("googleAccessToken", null);
   }
   
 }

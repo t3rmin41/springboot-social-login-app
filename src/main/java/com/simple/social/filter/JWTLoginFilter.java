@@ -8,6 +8,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -54,6 +55,12 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
   throws IOException, ServletException {
     TokenAuthenticationService tokenService = ApplicationContextProvider.getApplicationContext().getBean(TokenAuthenticationService.class);
     tokenService.addAuthentication(res, auth.getName(), auth.getAuthorities(), new Date(System.currentTimeMillis() + EXPIRATIONTIME));
+    invalidateIrrelevantSessionAttributes(req.getSession());
+  }
+  
+  private void invalidateIrrelevantSessionAttributes(HttpSession session) {
+    session.setAttribute("googleAccessToken", null);
+    session.setAttribute("fbAccessToken", null);
   }
   
 }
