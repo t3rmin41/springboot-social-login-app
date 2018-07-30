@@ -2,7 +2,6 @@ package com.simple.social.rest.controller;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import java.security.Principal;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import javax.inject.Inject;
@@ -24,8 +23,6 @@ import com.simple.social.service.UserService;
 @RequestMapping(value = "/users", produces = APPLICATION_JSON_UTF8_VALUE)
 public class UserController {
 
-  private List<String> allowedRoles = new LinkedList<String>(Arrays.asList(new String[]{"ROLE_ADMIN"}));
-  
   @Inject
   private UserService users;
 
@@ -48,6 +45,11 @@ public class UserController {
       return roleList;
   }
 
+  @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+  public @ResponseBody UserBean getUserById(UsernamePasswordAuthenticationToken token, @PathVariable("id") Long id) {
+    return users.getUserById(id);
+  }
+  
   @RequestMapping(value = "/info", method = RequestMethod.GET)
   public @ResponseBody Principal getUserInfo(UsernamePasswordAuthenticationToken token, Principal principal) {
     return principal;
@@ -61,13 +63,6 @@ public class UserController {
   @RequestMapping(value = "/save", method = RequestMethod.POST, consumes = APPLICATION_JSON_UTF8_VALUE)
   public @ResponseBody UserBean saveUser(UsernamePasswordAuthenticationToken token, @RequestBody UserBean bean) {
     return users.saveUser(bean);
-  }
-
-  @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-  public @ResponseBody UserBean getUserById(UsernamePasswordAuthenticationToken token, @PathVariable("id") Long id) {
-    List<String> allowed = new LinkedList<String>();
-    allowed.addAll(allowedRoles); allowed.add("ROLE_CUSTOMER"); allowed.add("ROLE_MANAGER");
-    return users.getUserById(id);
   }
 
   @RequestMapping(value = "/update", method = RequestMethod.PUT, consumes = APPLICATION_JSON_UTF8_VALUE)

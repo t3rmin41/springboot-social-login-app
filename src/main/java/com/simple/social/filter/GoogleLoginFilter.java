@@ -16,6 +16,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -181,6 +182,7 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
     if (null != message) {
       res.sendRedirect("/");
     }
+    invalidateIrrelevantSessionAttributes(req.getSession());
     //chain.doFilter(req, res); //include other filters in chain
   }
 
@@ -203,6 +205,10 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
     if (null == response.getHeader("GoogleLoginRequired") || !"true".equals(response.getHeader("GoogleLoginRequired"))) {
       response.addHeader("GoogleLoginRequired", "true");
     }
+  }
+  
+  private void invalidateIrrelevantSessionAttributes(HttpSession session) {
+    session.setAttribute("fbAccessToken", null);
   }
   
 }

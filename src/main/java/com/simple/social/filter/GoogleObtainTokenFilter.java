@@ -75,6 +75,7 @@ public class GoogleObtainTokenFilter extends AbstractAuthenticationProcessingFil
           accessTokenRequest.setAuthorizationCode(code);
           accessTokenRequest.setCurrentUri(config.getResourceDetails().getPreEstablishedRedirectUri());
           googleAccessToken = accessTokenProvider.obtainAccessToken(config.getResourceDetails(), accessTokenRequest);
+          googleAccessToken.getAdditionalInformation().put("sessionId", request.getSession().getId());
           request.getSession().setAttribute("googleAccessToken", googleAccessToken);
         }
     } catch (final OAuth2Exception e) {
