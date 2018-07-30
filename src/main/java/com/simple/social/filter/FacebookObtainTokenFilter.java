@@ -61,6 +61,7 @@ public class FacebookObtainTokenFilter extends AbstractAuthenticationProcessingF
         accessTokenRequest.setAuthorizationCode(code);
         accessTokenRequest.setCurrentUri(facebookConfig.getResourceDetails().getPreEstablishedRedirectUri());
         fbAccessToken = accessTokenProvider.obtainAccessToken(facebookConfig.getResourceDetails(), accessTokenRequest);
+        fbAccessToken.getAdditionalInformation().put("sessionId", request.getSession().getId());
         request.getSession().setAttribute("fbAccessToken", fbAccessToken);
       }
     } catch (OAuth2Exception e) {

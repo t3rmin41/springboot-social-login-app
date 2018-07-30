@@ -40,7 +40,8 @@ public class RoleValidator implements RequestValidator {
   
   @Pointcut("execution(* com.simple.social.rest.controller.UserController.loginSuccessfull(..)) || "+
             "execution(* com.simple.social.rest.controller.UserController.logout(..)) || "+
-            "execution(* com.simple.social.rest.controller.UserController.getUserRoleMap(..))"
+            "execution(* com.simple.social.rest.controller.UserController.getUserRoleMap(..))" +
+            "execution(* com.simple.social.rest.controller.UserController.getUserById(..))"
      )
   public void allowedUserControllerMethods() {}
   

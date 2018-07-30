@@ -3,6 +3,11 @@
     
     <div class="alert alert-danger" ng-show="errorMessage"> {{ errorMessage }} </div>
 
+    <div ng-show="currentUser.id" class="form-group" ng-class="{ 'has-error' : errors['id'] }">
+        <label for="txtID">ID:</label> {{currentUser.id}}
+        <p class="help-block" ng-show="errors['id']"> {{ errors['id'] }} </p>
+    </div>
+
     <div class="form-group" ng-class="{ 'has-error' : errors['firstName'] }">
         <label for="txtFirstName">First name:</label>
         <input type="text" id="txtFirstName" class="form-control" ng-model="currentUser.firstName" />
