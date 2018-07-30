@@ -13,10 +13,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import com.simple.social.enums.UserType;
 
 @Entity
-@Table(name = "USERS")
+@Table(name = "USERS",
+       uniqueConstraints = @UniqueConstraint(columnNames={"EMAIL", "TYPE"})
+)
 public class UserDao {
 
   @Id
