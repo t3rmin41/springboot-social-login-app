@@ -94,8 +94,6 @@ dependencies {
     compile("org.hibernate:hibernate-core:${hibernateVersion}")
     compile("org.hibernate:hibernate-entitymanager:${hibernateVersion}")
     compile("org.springframework:spring-orm:${springCoreVersion}")
-    compile("org.hibernate:hibernate-core:${hibernateVersion}")
-    compile("org.hibernate:hibernate-entitymanager:${hibernateVersion}")
     compile("org.postgresql:postgresql:42.2.1")
     /*
     compile('com.microsoft.sqlserver:mssql-jdbc:6.1.0.jre8') {
