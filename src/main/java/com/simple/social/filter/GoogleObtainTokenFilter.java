@@ -1,7 +1,7 @@
 package com.simple.social.filter;
 
-import java.io.IOException;
 import java.util.concurrent.locks.ReentrantLock;
+import java.io.IOException;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
