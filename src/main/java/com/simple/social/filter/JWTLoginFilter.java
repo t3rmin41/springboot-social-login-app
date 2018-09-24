@@ -17,7 +17,7 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
-import com.simple.social.ApplicationContextProvider;
+import com.simple.social.app.ApplicationContextProvider;
 import com.simple.social.service.TokenAuthenticationService;
 import com.simple.social.util.security.UserCredentials;
 import com.simple.social.util.security.UserNotAllowedException;
