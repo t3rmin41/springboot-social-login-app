@@ -1,4 +1,4 @@
-package com.simple.fb.test.config;
+package com.simple.social.test.config;
 
 public class ServiceTestConfig {
 

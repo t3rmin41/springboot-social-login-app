@@ -1,4 +1,4 @@
-package com.simple.social;
+package com.simple.social.app;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;

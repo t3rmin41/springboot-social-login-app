@@ -1,4 +1,4 @@
-package com.simple.social;
+package com.simple.social.app;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,12 +11,14 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Import;
 import com.simple.social.config.ActiveMqConfig;
 import com.simple.social.config.ApplicationConfig;
+import com.simple.social.config.ApplicationInitializerConfig;
 import com.simple.social.config.JpaConfig;
 import com.simple.social.config.MvcConfig;
+import com.simple.social.config.SwaggerConfig;
 import com.simple.social.security.SecurityConfig;
 
 @SpringBootApplication
-@Import({ApplicationConfig.class, JpaConfig.class, MvcConfig.class, ActiveMqConfig.class, SecurityConfig.class})
+@Import({ApplicationConfig.class, JpaConfig.class, MvcConfig.class, ActiveMqConfig.class, SecurityConfig.class, SwaggerConfig.class, ApplicationInitializerConfig.class})
 public class SimpleApp { // extends SpringBootServletInitializer {
 
   private static Logger log = LoggerFactory.getLogger(SimpleApp.class);
