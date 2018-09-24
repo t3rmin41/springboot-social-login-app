@@ -20,7 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.simple.social.ApplicationContextProvider;
+import com.simple.social.app.ApplicationContextProvider;
 import com.simple.social.service.TokenAuthenticationService;
 import com.simple.social.util.security.UserNotFoundException;
 import io.jsonwebtoken.ExpiredJwtException;

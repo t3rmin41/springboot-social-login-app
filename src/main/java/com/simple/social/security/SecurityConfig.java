@@ -34,14 +34,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Inject
   private DataSource dataSource;
 
+  @Inject
+  private PasswordEncoder passwordEncoder;
+  
   @Bean
   public RestTemplate restTemplate() {
     return new RestTemplate();
-  }
-  
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-      return new BCryptPasswordEncoder();
   }
 
   @Bean
@@ -120,7 +118,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
       auth.jdbcAuthentication().dataSource(dataSource)
       .usersByUsernameQuery("SELECT email AS username, password, enabled FROM users WHERE email = ? AND type = 'APP'")
       .authoritiesByUsernameQuery("SELECT user_id, CONCAT('ROLE_',role) AS authority FROM roles WHERE user_id = (SELECT id FROM users WHERE email = ? AND type = 'APP')")
-      .passwordEncoder(passwordEncoder());
+      .passwordEncoder(passwordEncoder);
   }
   
   private Filter loginFilters() throws Exception {

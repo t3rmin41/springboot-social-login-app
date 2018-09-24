@@ -52,4 +52,5 @@ public class RoleValidator implements RequestValidator {
     validateRequestAgainstUserRoles(token, allowedModifyUserRoles, request.getRequestURI());
   }
   
+  
 }
